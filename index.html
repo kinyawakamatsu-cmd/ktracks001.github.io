@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>kaonavi 機能コンパス</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+:root {
+  --bg-base:      #0f1117;
+  --bg-panel:     #181c27;
+  --bg-panel2:    #1e2433;
+  --bg-input:     #252b3b;
+  --border:       rgba(255,255,255,0.08);
+  --border-focus: #378ADD;
+  --text-primary: #e8eaf0;
+  --text-secondary: #8a90a2;
+  --text-muted:   #555b6e;
+  --accent-green: #1D9E75;
+  --accent-blue:  #378ADD;
+  --accent-amber: #BA7517;
+  --accent-orange:#D85A30;
+  --radius:       10px;
+  --radius-sm:    6px;
+}
+ 
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+ 
+/* ── ヘッダー ── */
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+#header-left { display: flex; align-items: center; gap: 12px; }
+#header-icon {
+  width: 40px; height: 40px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+#header-icon img { width: 40px; height: 40px; object-fit: contain; }
+#header-title { font-size: 17px; font-weight: 700; color: var(--text-primary); }
+#header-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+#header-badge {
+  font-size: 11px; font-weight: 600;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-secondary);
+}
+ 
+/* ── メインレイアウト ── */
+#main {
+  display: flex;
+  height: calc(100vh - 65px);
+  overflow: hidden;
+}
+ 
+/* ── 左パネル ── */
+#left-panel {
+  width: 310px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  padding: 18px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+ 
+.panel-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+ 
+/* カテゴリフィルター */
+.cat-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  text-align: left;
+  margin-bottom: 3px;
+}
+.cat-btn:hover { background: var(--bg-panel2); color: var(--text-primary); }
+.cat-btn.active {
+  background: var(--bg-panel2);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+.cat-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.cat-btn.active .cat-dot {
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+}
+.cat-check {
+  margin-left: auto;
+  width: 14px; height: 14px;
+  opacity: 0;
+  color: var(--text-muted);
+  transition: opacity 0.15s;
+  font-size: 12px;
+}
+.cat-btn.active .cat-check { opacity: 1; }
+ 
+/* 詳細リンクボタン */
+.detail-link-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+  border-radius: 20px;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.12s;
+  letter-spacing: 0.02em;
+}
+.detail-link-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+ 
+/* マップ軸グリッド */
+.axis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.axis-item {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-panel2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-weight: 500;
+}
+/* マップ軸ヒント */
+.axis-hint {
+  margin-top: 9px;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+ 
+/* 選択中の機能 */
+#detail-panel {
+  background: var(--bg-panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  flex: 1;
+  min-height: 0;
+}
+#detail-placeholder {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+#detail-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: none;
+}
+#detail-body {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  display: none;
+}
+#detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+.tag {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+ 
+/* ── ナビゲーションタブ ── */
+.nav-tab {
+  padding: 7px 18px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  letter-spacing: 0.01em;
+}
+.nav-tab:hover { background: var(--bg-panel2); color: var(--text-primary); }
+.nav-tab.active {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+}
+ 
+/* ── バトルカードスタイル ── */
+.bc-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 5px;
+}
+.bc-item {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding-left: 4px;
+}
+ 
+/* ── キャンバスエリア ── */
+#canvas-area {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+#canvas-wrap {
+  width: 740px;
+  height: 640px;
+  flex-shrink: 0;
+  position: relative;
+}
+canvas {
+  display: block;
+  width: 740px;
+  height: 640px;
+}
+ 
+/* ── 右パネル ── */
+#right-panel {
+  width: 310px;
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+ 
+.rp-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 7px;
+}
+ 
+#keyword-input {
+  width: 100%;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+#keyword-input::placeholder { color: var(--text-muted); }
+#keyword-input:focus { border-color: var(--border-focus); }
+ 
+#needs-select {
+  width: 100%;
+  padding: 8px 30px 8px 11px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555b6e' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 11px center;
+  transition: border-color 0.15s;
+}
+#needs-select:focus { border-color: var(--border-focus); }
+#needs-select option { background: #1e2433; }
+ 
+/* マッチング結果パネル */
+#match-panel {
+  flex: 1;
+  background: var(--bg-panel2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+}
+#match-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+.match-star {
+  width: 20px; height: 20px;
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-blue));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; flex-shrink: 0;
+}
+#match-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+#match-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  text-align: center;
+  margin: auto 0;
+  padding: 10px 0;
+}
+#match-results { display: flex; flex-direction: column; gap: 6px; }
+ 
+.match-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 7px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background 0.12s, transform 0.12s;
+}
+.match-card:hover {
+  background: rgba(255,255,255,0.07);
+  transform: translateX(2px);
+}
+.match-rank {
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  font-size: 9px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px; color: #fff;
+}
+.match-info { flex: 1; min-width: 0; }
+.match-name { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.match-reason { font-size: 10px; color: var(--text-muted); margin-top: 2px; line-height: 1.4; }
+.match-bar {
+  height: 2px; border-radius: 2px; margin-top: 5px;
+  opacity: 0.5;
+}
+</style>
+</head>
+<body>
+ 
+<!-- ヘッダー -->
+<div id="header">
+  <div id="header-left">
+    <div id="header-icon"><img src="data:image/png;base64,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" alt="kaonavi"></div>
+    <div>
+      <div id="header-title">セールスストーリーマップ</div>
+      <div id="header-sub">人事ニーズ×プロダクトマッチングツール</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="nav-tab active" id="tab-compass" onclick="switchPage('compass')">kaonavi 機能コンパス</button>
+    <button class="nav-tab" id="tab-position" onclick="switchPage('position')">他社比較ポジション</button>
+  </div>
+  <div id="header-badge">営業・社内向け</div>
+</div>
+ 
+<!-- メイン：機能コンパスページ -->
+<div id="page-compass">
+<div id="main">
+ 
+  <!-- 左パネル -->
+  <div id="left-panel">
+ 
+    <!-- 機能カテゴリ（クリックフィルター） -->
+    <div>
+      <div class="panel-section-title">機能カテゴリ</div>
+      <button class="cat-btn active" data-cat="viz"     onclick="toggleCat('viz')">
+        <span class="cat-dot" style="background:#1D9E75"></span>見える化する<span class="cat-check">✓</span>
+      </button>
+      <button class="cat-btn active" data-cat="collect" onclick="toggleCat('collect')">
+        <span class="cat-dot" style="background:#378ADD"></span>収集する<span class="cat-check">✓</span>
+      </button>
+      <button class="cat-btn active" data-cat="analyze" onclick="toggleCat('analyze')">
+        <span class="cat-dot" style="background:#BA7517"></span>分析する<span class="cat-check">✓</span>
+      </button>
+      <button class="cat-btn active" data-cat="other"   onclick="toggleCat('other')">
+        <span class="cat-dot" style="background:#D85A30"></span>その他・連携<span class="cat-check">✓</span>
+      </button>
+    </div>
+ 
+    <!-- マップの軸 -->
+    <div>
+      <div class="panel-section-title">マップの軸</div>
+      <div class="axis-grid">
+        <div class="axis-item">↑ 戦略・計画</div>
+        <div class="axis-item">個人・人材 →</div>
+        <div class="axis-item">↓ 運用・業務</div>
+        <div class="axis-item">← 組織全体</div>
+      </div>
+      <div class="axis-hint">円上の機能をクリックすると詳細が表示されます</div>
+    </div>
+ 
+    <!-- 選択中の機能 -->
+    <div>
+      <div class="panel-section-title">選択中の機能</div>
+      <div id="detail-panel">
+        <div id="detail-placeholder">円上の機能をクリックすると詳細が表示されます</div>
+        <div id="detail-title"></div>
+        <div id="detail-body"></div>
+        <div id="detail-tags"></div>
+        <div id="detail-link-wrap" style="display:none; margin-top:12px;">
+          <a id="detail-link" href="#" target="_blank" rel="noopener" class="detail-link-btn">詳細を見る →</a>
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <!-- キャンバスエリア -->
+  <div id="canvas-area">
+    <div id="canvas-wrap">
+      <canvas id="c" width="660" height="580"></canvas>
+    </div>
+  </div>
+ 
+  <!-- 右パネル -->
+  <div id="right-panel">
+ 
+    <div>
+      <div class="rp-label">リクエストキーワード</div>
+      <input id="keyword-input" type="text" placeholder="例：評価、組織図、スキル管理…" autocomplete="off">
+    </div>
+ 
+    <div>
+      <div class="rp-label">ご要望リスト</div>
+      <select id="needs-select">
+        <option value="">── ご要望を選択 ──</option>
+        <option value="人材情報一元化">人材情報一元化</option>
+        <option value="労務">労務</option>
+        <option value="入退社">入退社</option>
+        <option value="評価効率化">評価効率化</option>
+        <option value="人事業務効率化">人事業務効率化</option>
+        <option value="給与">給与</option>
+        <option value="年末調整">年末調整</option>
+        <option value="データ分析">データ分析</option>
+        <option value="可視化">可視化</option>
+        <option value="スキル管理">スキル管理</option>
+        <option value="育成">育成</option>
+        <option value="エンゲージメント">エンゲージメント</option>
+        <option value="サーベイ">サーベイ</option>
+        <option value="採用管理">採用管理</option>
+        <option value="人材採用">人材採用</option>
+        <option value="評価">評価</option>
+        <option value="情報公開">情報公開</option>
+        <option value="権限設定">権限設定</option>
+        <option value="カスタムCSV">カスタムCSV</option>
+        <option value="データ連携">データ連携</option>
+        <option value="ワークフロー">ワークフロー</option>
+        <option value="プロファイルブック">プロファイルブック</option>
+        <option value="勤怠">勤怠</option>
+        <option value="AI機能">AI機能</option>
+        <option value="入退社管理">入退社管理</option>
+        <option value="ラーニング">ラーニング</option>
+        <option value="eラーニング">eラーニング</option>
+        <option value="教育">教育</option>
+        <option value="人材配置">人材配置</option>
+        <option value="マイボード">マイボード</option>
+        <option value="セレクトビュー">セレクトビュー</option>
+      </select>
+    </div>
+ 
+    <div id="match-panel">
+      <div id="match-header">
+        <div class="match-star">★</div>
+        <div id="match-title">ご提案機能（プロダクトマッチング）</div>
+      </div>
+      <div id="match-empty">キーワードを入力するか<br>ご要望を選択すると<br>最適な機能をご提案します</div>
+      <div id="match-results" style="display:none"></div>
+    </div>
+ 
+  </div>
+</div>
+</div><!-- /#page-compass -->
+ 
+<!-- 他社比較ポジションページ -->
+<div id="page-position" style="display:none; height:calc(100vh - 65px); overflow:hidden;">
+<div id="pos-layout" style="display:flex; height:100%; overflow:hidden;">
+ 
+  <!-- 左サイドパネル -->
+  <div id="pos-left" style="width:300px;flex-shrink:0;background:var(--bg-panel);border-right:1px solid var(--border);padding:18px 16px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;">
+    <div>
+      <div class="panel-section-title">競合を検索</div>
+      <input id="pos-search" type="text" placeholder="例：SmartHR、タレントパレット…" autocomplete="off"
+        style="width:100%;padding:8px 11px;font-size:12px;font-family:inherit;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);outline:none;"
+        oninput="filterCompetitors(this.value)">
+    </div>
+    <div>
+      <div class="panel-section-title">競合を選択</div>
+      <select id="pos-select" onchange="onSelectCompetitor(this.value)"
+        style="width:100%;padding:8px 30px 8px 11px;font-size:12px;font-family:inherit;background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23555b6e' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 11px center;">
+        <option value="">── 競合を選択 ──</option>
+        <option value="talentpalette">タレントパレット</option>
+        <option value="smarthr">SmartHR</option>
+        <option value="hrmos">HRMOS（ビズリーチ）</option>
+        <option value="company">COMPANY（WHI）</option>
+        <option value="workday">Workday</option>
+        <option value="hrbrain">HRBrain</option>
+        <option value="cydas">CYDAS</option>
+        <option value="jinjer">jinjer</option>
+        <option value="freee">freee人事労務</option>
+        <option value="talentsforce">TalentsForce</option>
+      </select>
+    </div>
+    <div>
+      <div class="panel-section-title">マップ表示</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <button class="map-tab-btn active" id="maptab-1" onclick="switchMap(1)" style="width:100%;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-panel2);color:var(--text-primary);font-size:12px;font-family:inherit;cursor:pointer;text-align:left;">① データ重心 × 現場浸透</button>
+        <button class="map-tab-btn" id="maptab-2" onclick="switchMap(2)" style="width:100%;padding:7px 10px;border-radius:var(--radius-sm);border:1px solid transparent;background:transparent;color:var(--text-secondary);font-size:12px;font-family:inherit;cursor:pointer;text-align:left;">② データ重心 × 導入の軽さ</button>
+      </div>
+    </div>
+    <div>
+      <div class="panel-section-title">差別化の3軸</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="background:var(--bg-panel2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;">
+          <div style="font-size:11px;font-weight:700;color:#1D9E75;margin-bottom:3px;">1. データの質</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">評価・育成・配置・コンディション。人の「判断データ」の厚みがTIの質を決める</div>
+        </div>
+        <div style="background:var(--bg-panel2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;">
+          <div style="font-size:11px;font-weight:700;color:#378ADD;margin-bottom:3px;">2. 現場浸透</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">人事部完結でなく現場マネージャー・社員まで使われる。データ鮮度と施策の質がここから生まれる</div>
+        </div>
+        <div style="background:var(--bg-panel2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;">
+          <div style="font-size:11px;font-weight:700;color:#BA7517;margin-bottom:3px;">3. 構造（設計順序）</div>
+          <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">お皿→Infinite Model→KTi→Talent Intelligence™ という順序と構造。機能は真似できるが構造は真似できない</div>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- センター：ポジショニングマップ -->
+  <div id="pos-center" style="flex:1;min-width:0;background:var(--bg-base);display:flex;align-items:center;justify-content:center;padding:16px;position:relative;">
+    <canvas id="pos-canvas" width="700" height="580" style="display:block;cursor:default;"></canvas>
+  </div>
+ 
+  <!-- 右：バトルカードパネル -->
+  <div id="pos-right" style="width:360px;flex-shrink:0;background:var(--bg-panel);border-left:1px solid var(--border);padding:18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;">
+    <div id="battlecard-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--bg-panel2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;">⚔️</div>
+      <div style="font-size:12px;color:var(--text-muted);text-align:center;line-height:1.8;">ポジショニングマップ上の<br>競合ロゴをクリックすると<br>バトルカードが表示されます</div>
+    </div>
+    <div id="battlecard-content" style="display:none;"></div>
+  </div>
+ 
+</div>
+</div><!-- /#page-position -->
+ 
+<script>
+// ── ページ切り替え ──
+function switchPage(page) {
+  document.getElementById('page-compass').style.display = page === 'compass' ? '' : 'none';
+  document.getElementById('page-position').style.display = page === 'position' ? 'block' : 'none';
+  document.getElementById('tab-compass').classList.toggle('active', page === 'compass');
+  document.getElementById('tab-position').classList.toggle('active', page === 'position');
+  if (page === 'position') {
+    setTimeout(() => { renderPosMap(); }, 50);
+  }
+}
+</script>
+ 
+<script>
+// ── 他社比較ポジション：データ ──
+const competitors = {
+  talentpalette: {
+    name: 'タレントパレット',
+    short: 'TP',
+    color: '#E85D8A',
+    map1: { x: 0.72, y: 0.25 }, // データ重心:右, 現場浸透:高い
+    map2: { x: 0.72, y: 0.35 },
+    position: '右上：判断データ × 浸透（最大の直接競合）',
+    origin: 'テキストマイニング/科学的人事 ｜ シェアNo.1を標榜',
+    strengths: ['分析・データサイエンスの深さ（ハイパフォーマー分析等）', '対話型タレントAIインサイト、AIエージェントを2026年投入', '導入社数の母数とブランド'],
+    weaknesses: ['高度分析ゆえ使いこなしが人事部に偏りやすい', '機能リッチで現場の日常利用に落ちにくい場面', 'AIは既存分析の上の機能拡張（後付け）'],
+    winpoints: ['「分析卓」でなく現場が毎日使う人材活用基盤', 'お皿で他社データも取り込む拡張性', 'TM→TIを構造（Infinite Model→KTi）で一貫提示'],
+    losspattern: '「高度な分析がしたい」案件',
+    comeback: '分析精度はデータ鮮度×現場入力で決まる。誰が日々入れ、誰が施策を実行するか？',
+    oneliner: '人事部の分析卓 vs 現場で回る人材活用基盤'
+  },
+  smarthr: {
+    name: 'SmartHR',
+    short: 'SHR',
+    color: '#27AE60',
+    map1: { x: 0.28, y: 0.22 },
+    map2: { x: 0.28, y: 0.28 },
+    position: '左上：手続き起点 × 高浸透（最警戒・右へ移動中）',
+    origin: '労務管理シェアNo.1 ｜ 労務で人事データが自然に溜まる',
+    strengths: ['全社が労務で触る圧倒的な浸透とデータ母数', 'キャリア台帳/配置シミュ/スキル管理/サーベイを拡張中', 'UXが平易、ITに不慣れでも使える'],
+    weaknesses: ['TMは労務の「ついで」。評価・育成・配置の運用深度が浅い', 'データは手続き中心で判断データの厚みが薄い', '専業の運用ノウハウ・テンプレが弱い'],
+    winpoints: ['評価・育成・配置の運用深度と専業ノウハウ', '労務はお皿/iPaaSで取り込み、判断データの質で勝つ', '母数競争に乗らず「意思決定の質」で差別化'],
+    losspattern: '既にSmartHR労務を導入済み・追加コスト回避',
+    comeback: '労務データだけでは抜擢・後継・育成は決められない。そこは専業の領域。',
+    oneliner: 'データが「溜まる」のと、意思決定に「効く」のは別物'
+  },
+  hrmos: {
+    name: 'HRMOS',
+    short: 'HRM',
+    color: '#E67E22',
+    map1: { x: 0.25, y: 0.72 },
+    map2: { x: 0.25, y: 0.68 },
+    position: '左下：採用・マッチング起点',
+    origin: '採用16年・外部労働市場データ ｜ 社内版ビズリーチ',
+    strengths: ['採用DNAと外部労働市場データ', 'AI社内レジュメ/ポジション自動生成/社内公募マッチング', 'HRMOSラーニングでスキルギャップ学習'],
+    weaknesses: ['重心はマッチング（採用・異動）', '入社後の評価・育成・配置の継続運用は手薄', 'スキルタグ中心で判断データの縦の蓄積が弱い'],
+    winpoints: ['入社後の人材活用（評価・育成・配置）の総合運用', '採用はサービス連携で取り込み、TM本体で勝つ', 'Infinite Modelで配置後の活躍まで循環'],
+    losspattern: '社内公募・異動マッチングが主目的',
+    comeback: 'マッチングはTIの「入力」。配置後の活躍・育成まで回すには判断データの基盤が要る。',
+    oneliner: 'マッチングは入口。活躍させるのはTM本体'
+  },
+  company: {
+    name: 'COMPANY',
+    short: 'COM',
+    color: '#8E44AD',
+    map1: { x: 0.68, y: 0.75 },
+    map2: { x: 0.68, y: 0.78 },
+    position: '右下：高機能・人事部完結/重い',
+    origin: '大手1,200法人グループ ｜ 3社に1社 ｜ 定額制',
+    strengths: ['大手の複雑な給与・勤怠・年末調整の網羅性', 'コスト予見性（定額）、継続率98%、堅牢なセキュリティ', '統合基幹の中でTMも完結'],
+    weaknesses: ['導入が重く長い、現場の日常利用に落ちにくい', '基幹中心でTMの俊敏な進化・AI活用は相対的に緩やか', '中堅〜成長企業にはオーバースペック/高コスト'],
+    winpoints: ['導入が軽く速い、現場で使われるTM', 'AI（KTi）とTI構想の進化スピード', 'お皿で基幹データと連携、TM/TIレイヤーで価値を出す'],
+    losspattern: '超大手・全社基幹の一括刷新',
+    comeback: '基幹刷新とTMの俊敏な進化は別レイヤー。TM/TIはカオナビ、基幹はCOMPANY連携で住み分け。',
+    oneliner: '基幹の網羅性 vs 現場で速く回るTI'
+  },
+  workday: {
+    name: 'Workday',
+    short: 'WD',
+    color: '#C0392B',
+    map1: { x: 0.75, y: 0.78 },
+    map2: { x: 0.75, y: 0.82 },
+    position: '右下：グローバル統合/人事部・IT主導',
+    origin: 'グローバルHCMの標準 ｜ Skills Cloud ｜ Illuminate AI',
+    strengths: ['グローバル多拠点の標準・実績（1万社超）', 'Skills Cloudでスキルを基盤化、AIエージェント', '概念的にTI構想が最も近い先行者'],
+    weaknesses: ['導入・運用が重くコスト高、日本の人事制度適合に工数', 'スキル基盤中心で日本の評価・育成運用との距離', '日本の中堅〜大手の浸透・即効性で不利'],
+    winpoints: ['日本企業の評価・育成・配置運用への適合度', '導入の軽さ・速さ・現場浸透', '日本市場特化のTI（KTi）とローカル運用ノウハウ'],
+    losspattern: 'グローバル本社主導の全社HCM統一',
+    comeback: 'グローバル基盤はWorkday、日本拠点の現場運用・TIはカオナビで併用/住み分け。',
+    oneliner: 'グローバル標準 vs 日本の現場に効くTI'
+  },
+  hrbrain: {
+    name: 'HRBrain',
+    short: 'HRB',
+    color: '#2980B9',
+    map1: { x: 0.62, y: 0.30 },
+    map2: { x: 0.62, y: 0.38 },
+    position: '右上：専業（評価/サーベイ起点）',
+    origin: '評価・サーベイ起点 ｜ 5サービスのワンストップ専業',
+    strengths: ['評価制度運用・組織診断サーベイの作り込み', 'ワンストップの守備範囲、UI/コスパ', '中堅市場での導入実績'],
+    weaknesses: ['評価・サーベイ起点で配置・育成・TIの縦の深さは発展途上', 'プラットフォーム化（他社データ取り込み）が限定的', 'AIエージェント/TI構想の先行性は弱い'],
+    winpoints: ['お皿×Infinite Model×KTiの構造先行', '中堅〜大手での導入実績と運用蓄積', '評価・サーベイは「お団子」の一つに内包'],
+    losspattern: '評価運用・サーベイが主目的でコスト重視',
+    comeback: '評価・サーベイはTIの一部。TI（KTi）まで一気通貫で伸ばせるのは基盤を持つ側。',
+    oneliner: '評価運用の専業 vs TIまで伸びる基盤'
+  },
+  cydas: {
+    name: 'CYDAS',
+    short: 'CYD',
+    color: '#16A085',
+    map1: { x: 0.65, y: 0.35 },
+    map2: { x: 0.65, y: 0.42 },
+    position: '右上：専業（柔軟モジュール）',
+    origin: 'モジュール選択式の柔軟性 ｜ 制度設計コンサル ｜ WHI提携',
+    strengths: ['高い柔軟性・カスタマイズ、制度設計サポート', 'パフォーマンス/育成/エンゲージ/分析のモジュール', 'フィード/掲示板など現場コミュ機能'],
+    weaknesses: ['柔軟ゆえ標準運用・スピード導入が弱い場面', 'スケールするTI/AI構想の先行性は限定的', 'データ基盤の先行性が弱い'],
+    winpoints: ['標準化された運用と導入スピード', 'TI/KTiの構造と中堅〜大手の実績', 'お皿で拡張、将来コストを抑える'],
+    losspattern: '独自制度に合わせ込みたい・コンサル前提',
+    comeback: '作り込みは初期に効くがAI/TIの進化に追従しづらい。標準基盤+拡張の方が将来コストが低い。',
+    oneliner: '作り込みの柔軟性 vs 進化し続ける標準基盤'
+  },
+  jinjer: {
+    name: 'jinjer',
+    short: 'JNJ',
+    color: '#F39C12',
+    map1: { x: 0.22, y: 0.68 },
+    map2: { x: 0.22, y: 0.62 },
+    position: '左下：労務・勤怠・給与統合DB',
+    origin: '労務・勤怠・給与が同一DB ｜ 2024年にTM参入',
+    strengths: ['人事・勤怠・給与が最初から統合（マスタ連携不要）', 'コスト効率、バックオフィス一体運用', '活躍人材の条件分析を同一DBで'],
+    weaknesses: ['TM参入が新しく機能の細かさ・運用深度は専業に劣る', '判断データ活用・TI構想は発展途上', '現場の人材活用運用は手薄'],
+    winpoints: ['タレマネ本体の運用深度と専業ノウハウ', '労務・勤怠はiPaaS/連携で取り込み、TMの質で勝つ', 'TI（KTi）への接続構想で先行'],
+    losspattern: '労務〜評価をまとめて安く一体化したい',
+    comeback: '統合の手軽さと、抜擢・育成を回すTMの深さは別。後者は専業が要る。',
+    oneliner: '統合の手軽さ vs 回し切るTMの深さ'
+  },
+  freee: {
+    name: 'freee人事労務',
+    short: 'FRE',
+    color: '#1ABC9C',
+    map1: { x: 0.15, y: 0.75 },
+    map2: { x: 0.15, y: 0.70 },
+    position: '左下：給与・労務効率化特化',
+    origin: '給与計算・労務効率化に特化 ｜ 会計連携（隣接領域）',
+    strengths: ['給与・労務の効率化、会計・バックオフィス一体', 'SMBでの会計連携の強さ', '打刻〜給与明細〜年末調整の一元化'],
+    weaknesses: ['TMは周辺機能', '評価・育成・配置・TIは実質的に守備範囲外', '判断データの蓄積・活用が前提でない'],
+    winpoints: ['そもそもTMの土俵が違う', '給与・会計はfreee、人材活用（TM/TI）はカオナビで住み分け', '連携で両取りを提案'],
+    losspattern: 'SMBで「まず給与・労務」、TMは後回し',
+    comeback: '給与・会計はfreee、人材活用（TM/TI）はカオナビ。連携で両取り。',
+    oneliner: '給与・会計の効率化 ≠ 人材活用。土俵が違う'
+  },
+  talentsforce: {
+    name: 'TalentsForce',
+    short: 'TF',
+    color: '#9B59B6',
+    map1: { x: 0.18, y: 0.62 },
+    map2: { x: 0.18, y: 0.55 },
+    position: '左下：スキルマッチング起点（同じ「TI」標榜）',
+    origin: '人材紹介/staffing ｜ 7万件スキルタクソノミー ｜「TI」標榜',
+    strengths: ['大規模スキルタクソノミーとスキルベースのマッチング', '短期導入（要件定義約2ヶ月）、スキルベース職種に好適', '学習リコメンド/社内公募'],
+    weaknesses: ['スキルにレベル感なし→育成・抜擢・後継の意思決定は不可', '重心はマッチング。評価・行動・成果の縦の蓄積が薄い', '「TI」は実質スキルマッチング、タクソノミーは堀になりにくい'],
+    winpoints: ['レベル付きスキル×評価データ＝判断できるTI', 'Infinite Model→KTiの循環構造', '幅広いタレントマネジメントの守備範囲'],
+    losspattern: 'スキルベース職種・プロジェクトアサインが主目的',
+    comeback: 'スキルマッチングはTIの「入力」。レベルと評価が無いと育成・後継は回らない。',
+    oneliner: '同じ「TI」でも、片やスキル検索、片や意思決定基盤'
+  }
+};
+ 
+// カオナビの位置
+const kaonaviPos = {
+  map1: { x: 0.82, y: 0.22 },
+  map2: { x: 0.82, y: 0.22 }
+};
+ 
+let currentMap = 1;
+let selectedCompetitor = null;
+let hoveredCompetitor = null;
+let filterText = '';
+ 
+// ─ ポジショニングマップ描画 ─
+const posCanvas = document.getElementById('pos-canvas');
+const posCtx = posCanvas.getContext('2d');
+const PW = 700, PH = 580;
+posCanvas.width = PW; posCanvas.height = PH;
+ 
+function renderPosMap() {
+  const ctx = posCtx;
+  ctx.clearRect(0, 0, PW, PH);
+ 
+  const pad = { left: 55, right: 30, top: 50, bottom: 60 };
+  const mw = PW - pad.left - pad.right;
+  const mh = PH - pad.top - pad.bottom;
+ 
+  // 背景
+  ctx.fillStyle = '#0d1117';
+  ctx.fillRect(0, 0, PW, PH);
+ 
+  // グリッド
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(pad.left + mw * i / 4, pad.top);
+    ctx.lineTo(pad.left + mw * i / 4, pad.top + mh);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pad.left, pad.top + mh * i / 4);
+    ctx.lineTo(pad.left + mw, pad.top + mh * i / 4);
+    ctx.stroke();
+  }
+ 
+  // 象限背景
+  const qColors = [
+    { x:0.5, y:0, w:0.5, h:0.5, color:'rgba(29,158,117,0.06)', label:currentMap===1?'現場で回るTI（カオナビ）':'判断データ × 軽い導入（カオナビ）' },
+    { x:0, y:0, w:0.5, h:0.5, color:'rgba(55,138,221,0.06)', label:currentMap===1?'全社利用・手続き起点':'軽いが手続き起点' },
+    { x:0.5, y:0.5, w:0.5, h:0.5, color:'rgba(186,117,23,0.06)', label:currentMap===1?'高機能だが人事部完結':'高機能だが重い導入' },
+    { x:0, y:0.5, w:0.5, h:0.5, color:'rgba(216,90,48,0.06)', label:currentMap===1?'マッチング/バックオフィス':'重い・マッチング起点' }
+  ];
+  ctx.font = '11px sans-serif';
+  qColors.forEach(q => {
+    ctx.fillStyle = q.color;
+    ctx.fillRect(pad.left + mw*q.x, pad.top + mh*q.y, mw*q.w, mh*q.h);
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.textAlign = q.x > 0 ? 'right' : 'left';
+    ctx.textBaseline = q.y > 0 ? 'bottom' : 'top';
+    ctx.fillText(q.label,
+      q.x > 0 ? pad.left + mw - 8 : pad.left + 8,
+      q.y > 0 ? pad.top + mh - 8 : pad.top + 8
+    );
+  });
+ 
+  // 軸線
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  ctx.moveTo(pad.left + mw/2, pad.top);
+  ctx.lineTo(pad.left + mw/2, pad.top + mh);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top + mh/2);
+  ctx.lineTo(pad.left + mw, pad.top + mh/2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+ 
+  // 軸ラベル
+  ctx.fillStyle = 'rgba(180,200,255,0.6)';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // X軸
+  ctx.fillText('← 手続き・マッチング', pad.left + mw * 0.2, pad.top + mh + 22);
+  ctx.fillText('人の判断データ →',    pad.left + mw * 0.78, pad.top + mh + 22);
+  ctx.fillStyle = 'rgba(140,160,200,0.5)';
+  ctx.font = '10px sans-serif';
+  ctx.fillText('データの重心', pad.left + mw/2, pad.top + mh + 38);
+  // Y軸ラベル（横文字・左側に配置）
+  const yLabel = currentMap===1 ? '現場浸透' : '導入スピード';
+  const yTop   = currentMap===1 ? '高い ↑' : '速い ↑';
+  const yBot   = currentMap===1 ? '↓ 低い' : '↓ 遅い';
+  ctx.fillStyle = 'rgba(140,160,200,0.55)';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(yLabel, pad.left - 28, pad.top + mh/2);
+  ctx.fillStyle = 'rgba(180,200,255,0.65)';
+  ctx.font = 'bold 10px sans-serif';
+  ctx.fillText(yTop, pad.left - 28, pad.top + 14);
+  ctx.fillText(yBot, pad.left - 28, pad.top + mh - 14);
+ 
+  // 競合ポイント描画
+  const mapKey = currentMap === 1 ? 'map1' : 'map2';
+  const matchedNames = getFilteredNames();
+ 
+  Object.entries(competitors).forEach(([id, c]) => {
+    const pos = c[mapKey];
+    const px = pad.left + mw * pos.x;
+    const py = pad.top + mh * pos.y;
+ 
+    const isSelected = selectedCompetitor === id;
+    const isHovered = hoveredCompetitor === id;
+    const isFiltered = matchedNames !== null && !matchedNames.includes(id);
+ 
+    ctx.save();
+    ctx.globalAlpha = isFiltered ? 0.12 : 1.0;
+    const r = isSelected ? 26 : isHovered ? 24 : 20;
+ 
+    if (isSelected) {
+      ctx.beginPath();
+      ctx.arc(px, py, r + 6, 0, Math.PI*2);
+      ctx.strokeStyle = c.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+ 
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI*2);
+    ctx.fillStyle = c.color + 'cc';
+    ctx.fill();
+    ctx.strokeStyle = isHovered || isSelected ? '#fff' : 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = isHovered || isSelected ? 2 : 1;
+    ctx.stroke();
+ 
+    // ショートネーム
+    ctx.fillStyle = '#fff';
+    ctx.font = `${isSelected ? '700' : '600'} 9px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(c.short, px, py);
+    ctx.restore();
+ 
+    // 社名ラベル（下）
+    ctx.save();
+    ctx.globalAlpha = isFiltered ? 0.12 : (isSelected || isHovered ? 1.0 : 0.7);
+    ctx.fillStyle = isSelected ? c.color : 'rgba(200,210,230,0.8)';
+    ctx.font = `${isSelected ? '600' : '400'} 10px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText(c.name, px, py + r + 4);
+    ctx.restore();
+  });
+ 
+  // カオナビ
+  const kpos = kaonaviPos[mapKey];
+  const kpx = pad.left + mw * kpos.x;
+  const kpy = pad.top + mh * kpos.y;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(kpx, kpy, 28, 0, Math.PI*2);
+  const grad = posCtx.createRadialGradient(kpx, kpy, 0, kpx, kpy, 28);
+  grad.addColorStop(0, '#2ABFA0');
+  grad.addColorStop(1, '#378ADD');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('kaonavi', kpx, kpy);
+  ctx.restore();
+  ctx.save();
+  ctx.fillStyle = '#4DBFA0';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('kaonavi', kpx, kpy + 32);
+  ctx.restore();
+ 
+  posCanvas.posPoints = [];
+  Object.entries(competitors).forEach(([id, c]) => {
+    const pos = c[mapKey];
+    posCanvas.posPoints = posCanvas.posPoints || [];
+    posCanvas.posPoints.push({
+      id,
+      px: pad.left + mw * pos.x,
+      py: pad.top + mh * pos.y,
+      r: 24
+    });
+  });
+}
+ 
+function getFilteredNames() {
+  const kw = filterText.trim().toLowerCase();
+  const sel = document.getElementById('pos-select').value;
+  if (!kw && !sel) return null;
+  const matched = [];
+  Object.entries(competitors).forEach(([id, c]) => {
+    if (sel && id === sel) { matched.push(id); return; }
+    if (kw && c.name.toLowerCase().includes(kw)) matched.push(id);
+  });
+  return matched;
+}
+ 
+// ─ ヒットテスト ─
+function getPosMousePos(evt) {
+  const rect = posCanvas.getBoundingClientRect();
+  return {
+    x: (evt.clientX - rect.left) * (PW / rect.width),
+    y: (evt.clientY - rect.top) * (PH / rect.height)
+  };
+}
+function hitTestPos(mx, my) {
+  if (!posCanvas.posPoints) return null;
+  for (const p of posCanvas.posPoints) {
+    const dx = mx - p.px, dy = my - p.py;
+    if (Math.sqrt(dx*dx + dy*dy) < 30) return p.id;
+  }
+  return null;
+}
+ 
+posCanvas.addEventListener('mousemove', e => {
+  const p = getPosMousePos(e);
+  const hit = hitTestPos(p.x, p.y);
+  if (hit !== hoveredCompetitor) {
+    hoveredCompetitor = hit;
+    posCanvas.style.cursor = hit ? 'pointer' : 'default';
+    renderPosMap();
+  }
+});
+posCanvas.addEventListener('click', e => {
+  const p = getPosMousePos(e);
+  const hit = hitTestPos(p.x, p.y);
+  if (hit) {
+    selectedCompetitor = (hit === selectedCompetitor) ? null : hit;
+    renderPosMap();
+    if (selectedCompetitor) showBattlecard(selectedCompetitor);
+    else hideBattlecard();
+    // selectも同期
+    document.getElementById('pos-select').value = selectedCompetitor || '';
+  }
+});
+ 
+function showBattlecard(id) {
+  const c = competitors[id];
+  if (!c) return;
+  document.getElementById('battlecard-placeholder').style.display = 'none';
+  const el = document.getElementById('battlecard-content');
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="border-left:3px solid ${c.color};padding-left:12px;margin-bottom:14px;">
+      <div style="font-size:16px;font-weight:700;color:${c.color};">${c.name}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${c.origin}</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:.08em;margin-bottom:4px;">ポジション</div>
+      <div style="font-size:12px;color:${c.color};font-weight:600;">${c.position}</div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <div class="bc-section-title" style="color:#1D9E75;">✦ 相手の強み</div>
+      ${c.strengths.map(s => `<div class="bc-item">・${s}</div>`).join('')}
+    </div>
+    <div style="margin-bottom:10px;">
+      <div class="bc-section-title" style="color:#D85A30;">✦ 相手の弱み・限界</div>
+      ${c.weaknesses.map(s => `<div class="bc-item">・${s}</div>`).join('')}
+    </div>
+    <div style="margin-bottom:10px;">
+      <div class="bc-section-title" style="color:#378ADD;">✦ カオナビの勝ち筋</div>
+      ${c.winpoints.map(s => `<div class="bc-item" style="color:#6BAEE8;">・${s}</div>`).join('')}
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.2);border-radius:6px;padding:10px;margin-bottom:10px;">
+      <div class="bc-section-title" style="color:#D85A30;margin-bottom:6px;">⚠ 失注パターン & 切り返し</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px;">失注しやすい場面：<span style="color:#E07A55;">${c.losspattern}</span></div>
+      <div style="font-size:11px;color:var(--text-secondary);">切り返し：<span style="color:var(--text-primary);">${c.comeback}</span></div>
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(29,158,117,0.12),rgba(55,138,221,0.12));border:1px solid rgba(55,138,221,0.25);border-radius:8px;padding:12px;margin-top:4px;">
+      <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:.08em;margin-bottom:5px;">一言ポジショニング</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text-primary);line-height:1.5;">"${c.oneliner}"</div>
+    </div>
+  `;
+}
+function hideBattlecard() {
+  document.getElementById('battlecard-placeholder').style.display = 'flex';
+  document.getElementById('battlecard-content').style.display = 'none';
+}
+ 
+function switchMap(n) {
+  currentMap = n;
+  document.getElementById('maptab-1').classList.toggle('active', n===1);
+  document.getElementById('maptab-2').classList.toggle('active', n===2);
+  document.getElementById('maptab-1').style.background = n===1 ? 'var(--bg-panel2)' : 'transparent';
+  document.getElementById('maptab-1').style.color = n===1 ? 'var(--text-primary)' : 'var(--text-secondary)';
+  document.getElementById('maptab-1').style.borderColor = n===1 ? 'var(--border)' : 'transparent';
+  document.getElementById('maptab-2').style.background = n===2 ? 'var(--bg-panel2)' : 'transparent';
+  document.getElementById('maptab-2').style.color = n===2 ? 'var(--text-primary)' : 'var(--text-secondary)';
+  document.getElementById('maptab-2').style.borderColor = n===2 ? 'var(--border)' : 'transparent';
+  renderPosMap();
+}
+ 
+function onSelectCompetitor(id) {
+  selectedCompetitor = id || null;
+  filterText = id ? competitors[id]?.name || '' : '';
+  document.getElementById('pos-search').value = filterText;
+  renderPosMap();
+  if (selectedCompetitor) showBattlecard(selectedCompetitor);
+  else hideBattlecard();
+}
+ 
+function filterCompetitors(val) {
+  filterText = val;
+  // セレクトも同期
+  const kw = val.trim().toLowerCase();
+  if (!kw) {
+    document.getElementById('pos-select').value = '';
+    selectedCompetitor = null;
+    hideBattlecard();
+  } else {
+    const match = Object.entries(competitors).find(([id, c]) => c.name.toLowerCase().includes(kw));
+    if (match) {
+      document.getElementById('pos-select').value = match[0];
+      selectedCompetitor = match[0];
+      showBattlecard(match[0]);
+    } else {
+      document.getElementById('pos-select').value = '';
+      selectedCompetitor = null;
+      hideBattlecard();
+    }
+  }
+  renderPosMap();
+}
+</script>
+ 
+<script>
+// ── データ ──
+const features = [
+  { id:'profilebook',  name:'プロファイル\nブック',       short:'プロファイルブック',
+    cat:'viz',     angle:30,  ring:2, color:'#1D9E75',
+    desc:'社員の顔写真・プロフィール情報を見やすく一覧化。「あの人誰だっけ？」を解消し、社内の人材を素早く検索・把握できます。',
+    needs:['人材把握','情報一元化','社員検索'],
+    kw:['人材情報一元化','プロファイルブック','社員一覧','顔写真','プロフィール','人材把握','検索','社員','一覧','情報公開'] },
+  { id:'sheetgarage',  name:'シート\nガレージ',           short:'シートガレージ',
+    cat:'viz',     angle:60,  ring:1, color:'#1D9E75',
+    desc:'各種社員情報をカスタマイズした一覧表で表示。スキル・資格・評価などをまとめて確認でき、HR業務の効率化に貢献します。',
+    needs:['情報一覧化','データ整備','業務効率化'],
+    kw:['人材情報一元化','セレクトビュー','社員一覧','一覧','リスト','スキル管理','評価','カスタムCSV','データ','人事業務効率化'] },
+  { id:'pickup',       name:'ピックアップ\nリスト',        short:'ピックアップリスト',
+    cat:'viz',     angle:90,  ring:2, color:'#1D9E75',
+    desc:'特定の条件で社員をグルーピングしリスト化。後継者候補・ハイパフォーマー層など、目的別の人材ポートフォリオを管理できます。',
+    needs:['タレント管理','後継者計画','人材ポートフォリオ'],
+    kw:['人材配置','後継者','タレント','グルーピング','社員一覧','ポートフォリオ','配置','育成'] },
+  { id:'synapstree',   name:'シナプス\nツリー',            short:'シナプスツリー',
+    cat:'viz',     angle:340, ring:2, color:'#1D9E75',
+    desc:'組織図をビジュアルで表示し、異動・組織改編シミュレーションが可能。将来の組織設計を視覚的に検討できます。',
+    needs:['組織可視化','異動シミュレーション','組織設計'],
+    kw:['組織図','組織','異動','シミュレーション','組織設計','ツリー','可視化','人材配置'] },
+  { id:'selectview',   name:'セレクト\nビュー',            short:'セレクトビュー',
+    cat:'viz',     angle:15,  ring:1, color:'#1D9E75',
+    desc:'選択した項目で社員を一覧表示。複数条件でのフィルタリングにより、必要な人材情報を素早く抽出できます。',
+    needs:['データ抽出','条件検索','レポート作成'],
+    kw:['セレクトビュー','社員一覧','一覧','検索','フィルタ','抽出','レポート','データ分析','可視化','カスタムCSV'] },
+  { id:'voicenote',    name:'ボイス\nノート',              short:'ボイスノート',
+    cat:'collect', angle:130, ring:2, color:'#378ADD',
+    desc:'アンケートを作成・配布・集計できる機能。エンゲージメント調査・入社時アンケート・研修後のフィードバック収集などに活用できます。',
+    needs:['エンゲージメント調査','従業員の声収集','アンケート運用'],
+    kw:['サーベイ','エンゲージメント','調査','フィードバック','収集','入退社','入退社管理'] },
+  { id:'smartreview',  name:'スマート\nレビュー',           short:'スマートレビュー',
+    cat:'collect', angle:160, ring:1, color:'#378ADD',
+    desc:'評価ワークフローをデジタル化。目標設定・中間レビュー・最終評価までの流れをシステムで一元管理できます。',
+    needs:['評価運用','目標管理','MBO/OKR管理'],
+    kw:['評価','評価効率化','目標設定','MBO','OKR','レビュー','ワークフロー','人事業務効率化'] },
+  { id:'ability',      name:'アビリティ\nマネージャー',     short:'アビリティマネージャー',
+    cat:'collect', angle:195, ring:2, color:'#378ADD',
+    desc:'スキルの収集・見える化・分析ができる機能。スキルマップを作成し、育成計画や人材配置の根拠データとして活用できます。',
+    needs:['スキル管理','育成計画','人材配置'],
+    kw:['スキル管理','人材配置','育成','スキルマップ','ラーニング','教育','eラーニング','成長'] },
+  { id:'formation',    name:'フォーメーション\nビルダー',   short:'フォーメーションビルダー',
+    cat:'collect', angle:355, ring:1, color:'#378ADD',
+    desc:'異動・組織改編の計画を取りまとめ、承認フローまで一元管理。大規模な組織変更をスムーズに推進できます。',
+    needs:['組織改編管理','異動計画','HRBPサポート'],
+    kw:['組織図','組織','異動','組織改編','人材配置','承認','ワークフロー','人事業務効率化'] },
+  { id:'workflow',     name:'ワーク\nフロー',              short:'ワークフロー',
+    cat:'collect', angle:230, ring:1, color:'#378ADD',
+    desc:'各種申請・届出をデジタル化。紙・メール・Excelでの申請業務を廃止し、承認状況をリアルタイムで確認できます。',
+    needs:['申請業務効率化','ペーパーレス','業務プロセス改善'],
+    kw:['ワークフロー','申請','承認','ペーパーレス','人事業務効率化','入退社','入退社管理','労務'] },
+  { id:'pulse',        name:'パルス\nサーベイ',            short:'パルスサーベイ',
+    cat:'collect', angle:110, ring:1, color:'#378ADD',
+    desc:'定期的な短いサーベイで社員のコンディション・エンゲージメントをリアルタイムに把握。離職予兆の早期発見にも活用できます。',
+    needs:['離職防止','エンゲージメント向上','コンディション管理'],
+    kw:['サーベイ','エンゲージメント','離職防止','コンディション','調査'] },
+  { id:'enneagram',    name:'エニア\nグラム',              short:'エニアグラム',
+    cat:'collect', angle:145, ring:2, color:'#378ADD',
+    desc:'社員の性格タイプを診断・把握。チームビルディングやコミュニケーション改善、採用時のミスマッチ防止に活用できます。',
+    needs:['性格診断','チームビルディング','コミュニケーション改善'],
+    kw:['診断','性格','チーム','コミュニケーション','人材配置','採用管理','人材採用'] },
+  { id:'connectcube',  name:'コネクト\nキューブ',          short:'コネクトキューブ',
+    cat:'collect', angle:170, ring:2, color:'#378ADD',
+    desc:'SPI3を活用した社員特性の把握・分析。採用後活躍予測や配置最適化のためのデータを蓄積・活用できます。',
+    needs:['適性検査連携','配置最適化','人材特性把握'],
+    kw:['人材配置','配置','SPI','適性','特性','採用管理','人材採用','データ分析'] },
+  { id:'shuffleface',  name:'シャッフル\nフェイス',         short:'シャッフルフェイス',
+    cat:'analyze', angle:275, ring:2, color:'#BA7517',
+    desc:'社員情報を2軸マトリクスで可視化・分析。パフォーマンス×ポテンシャルの9ボックスなど、人材ポートフォリオ分析が可能です。',
+    needs:['9ボックス分析','人材ポートフォリオ','タレントレビュー'],
+    kw:['評価','可視化','データ分析','9ボックス','マトリクス','タレント','ポートフォリオ','人材配置'] },
+  { id:'gadget',       name:'カスタム\nガジェット',         short:'カスタムガジェット',
+    cat:'analyze', angle:255, ring:1, color:'#BA7517',
+    desc:'社員情報をグラフ・集計表で自在に表現。年齢分布・在籍年数・離職率など、経営・管理職向けのレポートを簡単に作成できます。',
+    needs:['HR分析','レポーティング','経営向けデータ提供'],
+    kw:['データ分析','可視化','レポート','グラフ','集計','マイボード','カスタムCSV'] },
+  { id:'dashboard',    name:'ダッシュ\nボード',            short:'ダッシュボード',
+    cat:'analyze', angle:300, ring:1, color:'#BA7517',
+    desc:'複数の分析データを1画面に集約表示。経営会議・取締役会向けの人的資本レポートをリアルタイムで提供できます。',
+    needs:['人的資本開示','経営ダッシュボード','KPI管理'],
+    kw:['データ分析','可視化','マイボード','KPI','経営','レポート','人的資本'] },
+  { id:'insight',      name:'インサイト\nファインダー',     short:'インサイトファインダー',
+    cat:'analyze', angle:325, ring:2, color:'#BA7517',
+    desc:'AIがデータを自動分析し、離職リスクや採用効果などのインサイトを提示。データドリブンなHR意思決定を支援します。',
+    needs:['AI分析','離職予測','データドリブンHR'],
+    kw:['AI機能','データ分析','可視化','離職','予測','インサイト','評価'] },
+  { id:'positionmatch',name:'ポジション\nマッチング',       short:'ポジションマッチング',
+    cat:'other',   angle:45,  ring:2, color:'#D85A30',
+    desc:'ポジション要件と社員スキルを照合し、最適な候補者を自動提案。人材配置の客観性と効率を高めます。',
+    needs:['人材配置','後継者育成','キャリア開発'],
+    kw:['人材配置','配置','後継者','キャリア','スキル管理','AI機能','育成'] },
+  { id:'learning',     name:'ラーニング\nライブラリ',        short:'ラーニングライブラリ',
+    cat:'other',   angle:210, ring:2, color:'#D85A30',
+    desc:'学習コンテンツを集約・共有し、社員の学びを管理。研修履歴・受講状況をカオナビ内で一元管理できます。',
+    needs:['学習管理','育成計画','研修効果測定'],
+    kw:['ラーニング','eラーニング','学習','研修','育成','教育','コンテンツ','スキル管理'] },
+  { id:'creative',     name:'クリエイティブ\nマップ',        short:'クリエイティブマップ',
+    cat:'other',   angle:75,  ring:2, color:'#D85A30',
+    desc:'顔写真や図形を使って自由にレイアウトを設計。組織紹介ページや人材マップを視覚的に作成・共有できます。',
+    needs:['社内コミュニケーション','組織紹介','ブランディング'],
+    kw:['組織図','組織','紹介','マップ','社内','情報公開','社員一覧'] },
+  { id:'location',     name:'ロケーション\nサーチ',          short:'ロケーションサーチ',
+    cat:'other',   angle:240, ring:2, color:'#D85A30',
+    desc:'社員の自宅から各拠点への通勤時間を自動算出・比較。オフィス統廃合・転勤シミュレーションに活用できます。',
+    needs:['オフィス戦略','転勤シミュレーション','働き方改善'],
+    kw:['オフィス','転勤','シミュレーション','通勤','拠点','働き方','人材配置'] },
+];
+ 
+// ── プルダウン項目 → 対応機能の直接マッピング ──
+// 公式カテゴリ（見える化・収集・分析・その他）に基づき整理
+// このテーブルは プルダウン選択 と キーワード完全一致 の両方で使用する（結果を統一）
+const needsMapping = {
+  // 人材情報管理
+  '人材情報一元化':   ['profilebook','sheetgarage','selectview','pickup'],
+  'プロファイルブック':['profilebook'],
+  'セレクトビュー':   ['selectview'],
+  '情報公開':         ['profilebook','creative','sheetgarage'],
+  '社員一覧':         ['profilebook','sheetgarage','selectview'],
+ 
+  // 業務効率化・申請
+  '労務':             ['workflow'],
+  '入退社':           ['workflow','voicenote'],
+  '入退社管理':       ['workflow','voicenote'],
+  'ワークフロー':     ['workflow','smartreview','formation'],
+  '人事業務効率化':   ['workflow','smartreview','voicenote','formation'],
+ 
+  // 評価・目標
+  '評価':             ['smartreview','shuffleface','sheetgarage'],
+  '評価効率化':       ['smartreview','shuffleface'],
+  '目標設定':         ['smartreview'],
+ 
+  // データ分析（公式カテゴリ「データを分析する」= shuffleface/gadget/dashboard/insight）
+  'データ分析':       ['shuffleface','gadget','dashboard','insight'],
+  '可視化':           ['shuffleface','gadget','dashboard','insight','synapstree'],
+  'マイボード':       ['gadget','dashboard'],
+  'カスタムCSV':      ['sheetgarage','selectview','gadget'],
+  'データ連携':       ['sheetgarage','selectview','gadget','dashboard'],
+ 
+  // スキル・育成・ラーニング
+  'スキル管理':       ['ability','sheetgarage','positionmatch'],
+  '育成':             ['ability','learning','positionmatch'],
+  'ラーニング':       ['learning','ability'],
+  'eラーニング':      ['learning'],
+  '教育':             ['learning','ability'],
+ 
+  // エンゲージメント・サーベイ
+  'エンゲージメント': ['pulse','voicenote'],
+  'サーベイ':         ['pulse','voicenote','enneagram'],
+ 
+  // 採用・人材特性
+  '採用管理':         ['connectcube','enneagram'],
+  '人材採用':         ['connectcube','enneagram'],
+ 
+  // 人材配置・組織
+  '人材配置':         ['positionmatch','shuffleface','pickup','connectcube','synapstree','formation'],
+  '組織図':           ['synapstree','formation','creative'],
+ 
+  // AI
+  'AI機能':           ['insight','positionmatch'],
+ 
+  // カオナビ外・管理者機能（対応機能なし → 全グレーアウト）
+  '給与':             [],
+  '年末調整':         [],
+  '勤怠':             [],
+  '権限設定':         [],
+};
+ 
+// ── マッチングロジック（プルダウン・キーワード完全統一） ──
+function computeMatches(keyword, selectVal) {
+  const kw  = (keyword  || '').trim();
+  const sel = (selectVal|| '').trim();
+ 
+  // ─ ステップ1: needsMapping に完全一致するキーを収集 ─
+  // プルダウン選択 OR キーワードが needsMapping のキーに完全一致する場合は同じ結果を返す
+  const matchedKeys = [];
+  if (sel && needsMapping[sel] !== undefined) matchedKeys.push(sel);
+  if (kw) {
+    // キーワードをスペース・読点で分割し各トークンがmappingキーに完全一致するか確認
+    kw.split(/[\s　,、・]+/).filter(Boolean).forEach(token => {
+      if (needsMapping[token] !== undefined && !matchedKeys.includes(token)) {
+        matchedKeys.push(token);
+      }
+    });
+    // キーワード全体がキーに一致するケースも確認
+    if (needsMapping[kw] !== undefined && !matchedKeys.includes(kw)) {
+      matchedKeys.push(kw);
+    }
+  }
+ 
+  if (matchedKeys.length > 0) {
+    // マッピングから対応IDを集約（順序維持・重複除去）
+    const idOrder = [];
+    matchedKeys.forEach(key => {
+      (needsMapping[key] || []).forEach(id => {
+        if (!idOrder.includes(id)) idOrder.push(id);
+      });
+    });
+ 
+    // 対応機能なし（空配列）の場合 → 全グレーアウト
+    if (idOrder.length === 0) return [];
+ 
+    return idOrder
+      .map((id, i) => {
+        const f = features.find(x => x.id === id);
+        if (!f) return null;
+        const reason = f.needs.slice(0, 2).join('・') + ' に対応';
+        return { ...f, score: 100 - i * 5, reason };
+      })
+      .filter(Boolean)
+      .slice(0, 5);
+  }
+ 
+  // ─ ステップ2: マッピングにヒットしない場合はキーワードでファジー検索 ─
+  if (!kw && !sel) return [];
+  const query = (kw + ' ' + sel).trim().toLowerCase();
+  const tokens = query.split(/[\s　,、]+/).filter(Boolean);
+ 
+  return features.map(f => {
+    let score = 0;
+    const target = [...f.kw, ...f.needs, f.short, f.desc].join(' ').toLowerCase();
+    tokens.forEach(t => {
+      if (f.kw.some(k => k.toLowerCase() === t))          score += 10;
+      if (f.needs.some(n => n.toLowerCase().includes(t))) score += 8;
+      if (f.short.toLowerCase().includes(t))              score += 5;
+      if (target.includes(t))                             score += 2;
+    });
+    const mNeeds = f.needs.filter(n => tokens.some(t => n.toLowerCase().includes(t)));
+    const mKw    = f.kw.filter(k   => tokens.some(t => k.toLowerCase().includes(t)));
+    const reason = mNeeds.length ? mNeeds.slice(0,2).join('・') + ' に対応'
+                 : mKw.length   ? mKw.slice(0,2).join('・')    + ' に関連' : '';
+    return { ...f, score, reason };
+  })
+  .filter(f => f.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 5);
+}
+let activeCats = new Set(['viz','collect','analyze','other']);
+let hovered = null, selected = null;
+let featurePositions = [];
+let highlightedIds = null; // null=全表示, Set=マッチング連動ハイライト
+ 
+// ── カテゴリフィルター ──
+// activeCats = 現在「ハイライト表示する」カテゴリのセット
+// 全選択状態（初期）でクリック → そのカテゴリのみ選択に切り替え
+// 単独選択状態でクリック → 全選択に戻す
+function toggleCat(cat) {
+  const allCats = ['viz','collect','analyze','other'];
+  const allSelected = activeCats.size === allCats.length;
+ 
+  if (allSelected) {
+    // 全選択中 → クリックしたカテゴリのみ有効化
+    activeCats = new Set([cat]);
+  } else if (activeCats.has(cat) && activeCats.size === 1) {
+    // 単独選択中の同じボタン → 全選択に戻す
+    activeCats = new Set(allCats);
+  } else if (activeCats.has(cat)) {
+    // 複数選択中 → そのカテゴリを除外
+    activeCats.delete(cat);
+  } else {
+    // 未選択のカテゴリ → 追加
+    activeCats.add(cat);
+  }
+ 
+  // ボタン UI 更新
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    const c = btn.dataset.cat;
+    btn.classList.toggle('active', activeCats.has(c));
+  });
+  render();
+}
+ 
+// ── キャンバス ──
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 740, H = 640;
+canvas.width = W; canvas.height = H;
+const cx = W/2, cy = H/2;
+const rings = [80, 162, 250];
+ 
+function toRad(deg) { return deg * Math.PI / 180; }
+function getPos(angle, ring) {
+  const r = rings[ring];
+  const rad = toRad(angle - 90);
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+ 
+function drawBg() {
+  ctx.clearRect(0, 0, W, H);
+ 
+  // リング（ダーク固定）
+  const ringColors = ['#1a1f30','#1e2640','#203060','#1a2744'];
+  for (let i = rings.length - 1; i >= 0; i--) {
+    const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,rings[i]);
+    grad.addColorStop(0, ringColors[0]);
+    grad.addColorStop(1, ringColors[i+1] || ringColors[3]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, rings[i], 0, Math.PI*2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+ 
+  // セクター
+  const sectors = [
+    { start:-90, end:0,   color:'rgba(55,138,221,0.10)' },
+    { start:0,   end:90,  color:'rgba(29,158,117,0.10)' },
+    { start:90,  end:180, color:'rgba(186,117,23,0.10)' },
+    { start:180, end:270, color:'rgba(216,90,48,0.10)'  },
+  ];
+  sectors.forEach(s => {
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, rings[2], toRad(s.start), toRad(s.end));
+    ctx.closePath();
+    ctx.fillStyle = s.color;
+    ctx.fill();
+  });
+ 
+  // 十字軸
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 0.5;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(cx, cy-rings[2]-14); ctx.lineTo(cx, cy+rings[2]+14); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-rings[2]-14, cy); ctx.lineTo(cx+rings[2]+14, cy); ctx.stroke();
+  ctx.setLineDash([]);
+ 
+  // 軸ラベル（外縁から十分離す）
+  ctx.font = 'bold 12px sans-serif';
+  ctx.fillStyle = 'rgba(180,195,255,0.65)';
+  ctx.textAlign = 'center';
+  ctx.fillText('▲ 戦略・計画', cx, cy - rings[2] - 32);
+  ctx.fillText('▼ 運用・業務', cx, cy + rings[2] + 42);
+  // 左右ラベルはtextAlign='center'で固定X座標に描画（見切れ防止）
+  ctx.textAlign = 'center';
+  ctx.fillText('◀ 組織全体', cx - rings[2] - 52, cy + 5);
+  ctx.fillText('個人・人材 ▶', cx + rings[2] + 52, cy + 5);
+  ctx.textAlign = 'center';
+}
+ 
+function drawFeatures() {
+  featurePositions = [];
+  features.forEach(f => {
+    const pos = getPos(f.angle, f.ring);
+    const isCatActive = activeCats.has(f.cat);
+    // highlightedIds がある場合はそのIDのみフル表示、それ以外は薄く
+    const isHighlighted = highlightedIds ? highlightedIds.has(f.id) : true;
+    const isVisible = isCatActive && isHighlighted;
+    featurePositions.push({ ...f, px: pos.x, py: pos.y, r: 22, active: isVisible });
+ 
+    const isHov = hovered === f.id;
+    const isSel = selected === f.id;
+    const scale = (isHov || isSel) ? 1.15 : 1.0;
+    const r = 22 * scale;
+ 
+    ctx.save();
+    ctx.translate(pos.x, pos.y);
+    ctx.globalAlpha = isVisible ? 1.0 : 0.12;
+ 
+    if (isSel) {
+      ctx.beginPath();
+      ctx.arc(0, 0, r + 5, 0, Math.PI*2);
+      ctx.strokeStyle = f.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+ 
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI*2);
+    ctx.fillStyle = f.color + 'dd';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+ 
+    // マッチングハイライト時は外周リングを光らせる
+    if (highlightedIds && highlightedIds.has(f.id) && isCatActive) {
+      ctx.globalAlpha = 1.0;
+      ctx.beginPath();
+      ctx.arc(0, 0, r + 5, 0, Math.PI*2);
+      ctx.strokeStyle = f.color + 'cc';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+ 
+    const lines = f.name.split('\n');
+    ctx.fillStyle = '#fff';
+    ctx.font = `${(isHov||isSel)?'600 ':''}10px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    if (lines.length === 1) {
+      ctx.fillText(lines[0], 0, 0);
+    } else {
+      ctx.fillText(lines[0], 0, -6);
+      ctx.fillText(lines[1], 0, 6);
+    }
+    ctx.restore();
+  });
+}
+ 
+function drawCenter() {
+  ctx.beginPath();
+  ctx.arc(cx, cy, rings[0], 0, Math.PI*2);
+  ctx.fillStyle = '#0d1117';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+ 
+  ctx.font = '600 13px sans-serif';
+  ctx.fillStyle = '#4DBFA0';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('kaonavi', cx, cy - 8);
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = 'rgba(180,200,255,0.5)';
+  ctx.fillText('機能コンパス', cx, cy + 8);
+}
+ 
+function render() {
+  drawBg();
+  drawFeatures();
+  drawCenter();
+}
+ 
+// ── マウス操作 ──
+function getMousePos(evt) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (evt.clientX - rect.left) * (W / rect.width),
+    y: (evt.clientY - rect.top)  * (H / rect.height)
+  };
+}
+ 
+function hitTest(mx, my) {
+  for (const f of featurePositions) {
+    if (!f.active) continue;
+    const dx = mx - f.px, dy = my - f.py;
+    if (Math.sqrt(dx*dx + dy*dy) < 28) return f.id;
+  }
+  return null;
+}
+ 
+canvas.addEventListener('mousemove', e => {
+  const p = getMousePos(e);
+  const hit = hitTest(p.x, p.y);
+  if (hit !== hovered) {
+    hovered = hit;
+    canvas.style.cursor = hit ? 'pointer' : 'default';
+    render();
+  }
+});
+ 
+canvas.addEventListener('click', e => {
+  const p = getMousePos(e);
+  const hit = hitTest(p.x, p.y);
+  if (hit) {
+    selected = (hit === selected) ? null : hit;
+    render();
+    if (selected) updateDetail(selected);
+    else clearDetail();
+  }
+});
+ 
+// ── 各機能のヘルプページURL（カオナビ機能一覧より）──
+const featureUrls = {
+  profilebook:   'https://help.kaonavi.jp/hc/ja/categories/30345877059725',
+  sheetgarage:   'https://help.kaonavi.jp/hc/ja/categories/30345877067917',
+  pickup:        'https://help.kaonavi.jp/hc/ja/categories/30345901329933',
+  synapstree:    'https://help.kaonavi.jp/hc/ja/categories/30345916165261',
+  selectview:    'https://help.kaonavi.jp/hc/ja/categories/30345908591373',
+  voicenote:     'https://help.kaonavi.jp/hc/ja/categories/30345916252557',
+  smartreview:   'https://help.kaonavi.jp/hc/ja/categories/30345860810509',
+  ability:       'https://help.kaonavi.jp/hc/ja/categories/30345891734797',
+  formation:     'https://help.kaonavi.jp/hc/ja/categories/34390834009997',
+  workflow:      'https://help.kaonavi.jp/hc/ja/categories/30345891782157',
+  pulse:         'https://help.kaonavi.jp/hc/ja/categories/30345877153165',
+  enneagram:     'https://help.kaonavi.jp/hc/ja/categories/30345908681357',
+  connectcube:   'https://help.kaonavi.jp/hc/ja/categories/30345891871757-%E3%82%B3%E3%83%8D%E3%82%AF%E3%83%88%E3%82%AD%E3%83%A5%E3%83%BC%E3%83%96',
+  shuffleface:   'https://help.kaonavi.jp/hc/ja/categories/30345916206349-%E3%82%B7%E3%83%A3%E3%83%83%E3%83%95%E3%83%AB%E3%83%95%E3%82%A7%E3%82%A4%E3%82%B9',
+  gadget:        'https://help.kaonavi.jp/hc/ja/categories/30345860838029-%E3%82%AB%E3%82%B9%E3%82%BF%E3%83%A0%E3%82%AC%E3%82%B8%E3%82%A7%E3%83%83%E3%83%88',
+  dashboard:     'https://help.kaonavi.jp/hc/ja/categories/30345901365261-%E3%83%80%E3%83%83%E3%82%B7%E3%83%A5%E3%83%9C%E3%83%BC%E3%83%89',
+  insight:       'https://help.kaonavi.jp/hc/ja/categories/31587034254733-%E3%82%A4%E3%83%B3%E3%82%B5%E3%82%A4%E3%83%88%E3%83%95%E3%82%A1%E3%82%A4%E3%83%B3%E3%83%80%E3%83%BC',
+  positionmatch: 'https://help.kaonavi.jp/hc/ja/categories/30345860899597',
+  learning:      'https://help.kaonavi.jp/hc/ja/categories/30345901369613-%E3%83%A9%E3%83%BC%E3%83%8B%E3%83%B3%E3%82%B0%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA',
+  creative:      'https://help.kaonavi.jp/hc/ja/categories/30345877200269',
+  location:      'https://help.kaonavi.jp/hc/ja/categories/30345877159693-%E3%83%AD%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%81',
+};
+const HELP_BASE = 'https://help.kaonavi.jp/hc/ja/#func_list';
+ 
+// ── 詳細パネル更新 ──
+function updateDetail(id) {
+  const f = features.find(x => x.id === id);
+  if (!f) return;
+ 
+  document.getElementById('detail-placeholder').style.display = 'none';
+  const titleEl = document.getElementById('detail-title');
+  titleEl.textContent = f.short;
+  titleEl.style.color = f.color;
+  titleEl.style.display = 'block';
+  const bodyEl = document.getElementById('detail-body');
+  bodyEl.textContent = f.desc;
+  bodyEl.style.display = 'block';
+ 
+  const tagsEl = document.getElementById('detail-tags');
+  tagsEl.innerHTML = '';
+  const tagColors = {
+    viz:     { bg:'rgba(29,158,117,0.15)',  text:'#4DBFA0' },
+    collect: { bg:'rgba(55,138,221,0.15)',  text:'#6BAEE8' },
+    analyze: { bg:'rgba(186,117,23,0.15)',  text:'#D4963A' },
+    other:   { bg:'rgba(216,90,48,0.15)',   text:'#E07A55' }
+  };
+  const tc = tagColors[f.cat];
+  f.needs.forEach(n => {
+    const span = document.createElement('span');
+    span.className = 'tag';
+    span.textContent = n;
+    span.style.background = tc.bg;
+    span.style.color = tc.text;
+    tagsEl.appendChild(span);
+  });
+ 
+  // 詳細リンクボタン
+  const linkWrap = document.getElementById('detail-link-wrap');
+  const linkEl   = document.getElementById('detail-link');
+  const url = featureUrls[id] || HELP_BASE;
+  linkEl.href = url;
+  linkEl.style.background = `linear-gradient(135deg, ${f.color}cc, ${f.color}88)`;
+  linkWrap.style.display = 'block';
+}
+ 
+function clearDetail() {
+  document.getElementById('detail-placeholder').style.display = '';
+  document.getElementById('detail-title').style.display = 'none';
+  document.getElementById('detail-body').style.display = 'none';
+  document.getElementById('detail-tags').innerHTML = '';
+  document.getElementById('detail-link-wrap').style.display = 'none';
+}
+ 
+ 
+function renderMatches(matches) {
+  const emptyEl   = document.getElementById('match-empty');
+  const resultsEl = document.getElementById('match-results');
+ 
+  // キャンバス連動: マッチしたIDのみハイライト、0件なら空Setで全グレーアウト
+  if (matches.length > 0) {
+    highlightedIds = new Set(matches.map(f => f.id));
+  } else {
+    // 検索はしたが0件 → 全機能グレーアウト（空Setにすることで全非表示）
+    highlightedIds = new Set();
+  }
+  render();
+ 
+  if (!matches.length) {
+    emptyEl.style.display = '';
+    resultsEl.style.display = 'none';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  resultsEl.style.display = 'flex';
+ 
+  const rankColors = ['#1D9E75','#378ADD','#BA7517','#D85A30'];
+  const maxScore = matches[0].score;
+  resultsEl.innerHTML = matches.map((f,i) => {
+    const pct = Math.round((f.score / maxScore) * 100);
+    return `<div class="match-card" style="border-left-color:${f.color}" onclick="onMatchClick('${f.id}')">
+      <div class="match-rank" style="background:${rankColors[i]}">${i+1}</div>
+      <div class="match-info">
+        <div class="match-name">${f.short}</div>
+        ${f.reason ? `<div class="match-reason">${f.reason}</div>` : ''}
+        <div class="match-bar" style="width:${pct}%;background:${f.color};"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+ 
+function onMatchClick(id) {
+  selected = id;
+  render();
+  updateDetail(id);
+  // ハイライトアニメーション
+  hovered = id;
+  setTimeout(() => { hovered = null; render(); }, 900);
+}
+ 
+let matchTimer = null;
+function triggerMatch() {
+  clearTimeout(matchTimer);
+  matchTimer = setTimeout(() => {
+    const kw  = document.getElementById('keyword-input').value;
+    const sel = document.getElementById('needs-select').value;
+    if (!kw && !sel) {
+      document.getElementById('match-empty').style.display = '';
+      document.getElementById('match-results').style.display = 'none';
+      highlightedIds = null;
+      render();
+      return;
+    }
+    renderMatches(computeMatches(kw, sel));
+  }, 200);
+}
+ 
+document.getElementById('keyword-input').addEventListener('input', triggerMatch);
+document.getElementById('needs-select').addEventListener('change', triggerMatch);
+ 
+// ── 初期描画 ──
+render();
+</script>
+</body>
+</html>

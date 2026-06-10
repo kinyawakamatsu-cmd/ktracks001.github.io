@@ -257,18 +257,19 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 16px 20px; /* キャンバス縮小により左右余白は20pxで十分 */
+  overflow: auto;
 }
 #canvas-wrap {
-  width: 740px;
-  height: 640px;
+  width: 680px;
+  height: 680px;
   flex-shrink: 0;
   position: relative;
 }
 canvas {
   display: block;
-  width: 740px;
-  height: 640px;
+  width: 680px;
+  height: 680px;
 }
  
 /* ── 右パネル ── */
@@ -444,6 +445,15 @@ canvas {
       <button class="cat-btn active" data-cat="other"   onclick="toggleCat('other')">
         <span class="cat-dot" style="background:#D85A30"></span>その他・連携<span class="cat-check">✓</span>
       </button>
+      <button class="cat-btn active" data-cat="kintai"  onclick="toggleCat('kintai')">
+        <span class="cat-dot" style="background:#8B6FD4"></span>カオナビ勤怠<span class="cat-check">✓</span>
+      </button>
+      <button class="cat-btn active" data-cat="roumu"   onclick="toggleCat('roumu')">
+        <span class="cat-dot" style="background:#C0695F"></span>カオナビ労務<span class="cat-check">✓</span>
+      </button>
+      <button class="cat-btn active" data-cat="saiyo"   onclick="toggleCat('saiyo')">
+        <span class="cat-dot" style="background:#3A9BBF"></span>カオナビ採用<span class="cat-check">✓</span>
+      </button>
     </div>
  
     <!-- マップの軸 -->
@@ -477,7 +487,7 @@ canvas {
   <!-- キャンバスエリア -->
   <div id="canvas-area">
     <div id="canvas-wrap">
-      <canvas id="c" width="660" height="580"></canvas>
+      <canvas id="c" width="680" height="680"></canvas>
     </div>
   </div>
  
@@ -516,6 +526,20 @@ canvas {
         <option value="ワークフロー">ワークフロー</option>
         <option value="プロファイルブック">プロファイルブック</option>
         <option value="勤怠">勤怠</option>
+        <option value="勤怠管理">勤怠管理</option>
+        <option value="打刻">打刻</option>
+        <option value="シフト管理">シフト管理</option>
+        <option value="残業管理">残業管理</option>
+        <option value="36協定">36協定</option>
+        <option value="入社手続き">入社手続き</option>
+        <option value="電子申請">電子申請</option>
+        <option value="マイナンバー">マイナンバー</option>
+        <option value="雇用契約">雇用契約</option>
+        <option value="給与明細">給与明細</option>
+        <option value="年末調整">年末調整</option>
+        <option value="採用管理">採用管理</option>
+        <option value="候補者管理">候補者管理</option>
+        <option value="選考管理">選考管理</option>
         <option value="AI機能">AI機能</option>
         <option value="入退社管理">入退社管理</option>
         <option value="ラーニング">ラーニング</option>
@@ -1316,6 +1340,67 @@ const features = [
     desc:'社員の自宅から各拠点への通勤時間を自動算出・比較。オフィス統廃合・転勤シミュレーションに活用できます。',
     needs:['オフィス戦略','転勤シミュレーション','働き方改善'],
     kw:['オフィス','転勤','シミュレーション','通勤','拠点','働き方','人材配置'] },
+ 
+  // ── カオナビ勤怠 ──
+  { id:'kintai_dakoku',   name:'打刻\n機能',              short:'打刻機能（カオナビ勤怠）',
+    cat:'kintai',  angle:195, ring:3, color:'#8B6FD4',
+    desc:'PC・タブレット・スマートフォン・ICカードリーダーから打刻可能。テレワーク勤務にも対応し、どこからでも出退勤の記録ができます。',
+    needs:['勤怠記録','打刻','テレワーク対応'],
+    kw:['勤怠','勤怠管理','打刻','タイムカード','テレワーク','出退勤','スマホ','ICカード','入退社管理'] },
+  { id:'kintai_alert',    name:'アラート\n機能',           short:'アラート機能（カオナビ勤怠）',
+    cat:'kintai',  angle:215, ring:3, color:'#8B6FD4',
+    desc:'打刻忘れ・残業超過・有休未取得・申請の承認待ちなどを通知。従業員は自分の勤怠状況を自己管理でき、管理者は課題を効率的に把握できます。',
+    needs:['労働時間管理','アラート通知','法令遵守'],
+    kw:['勤怠','勤怠管理','残業','有休','アラート','通知','法令','36協定','残業管理','人事業務効率化'] },
+  { id:'kintai_shift',    name:'シフト\n管理',             short:'シフト管理（カオナビ勤怠）',
+    cat:'kintai',  angle:235, ring:3, color:'#8B6FD4',
+    desc:'必要人数を確認しながらシフト表を簡単作成。人員不足の日は募集もシステム上で対応できます。法令に準拠した効率的なシフト運用をサポートします。',
+    needs:['シフト作成','人員管理','働き方管理'],
+    kw:['勤怠','シフト','シフト管理','人員','シフト表','勤怠管理','働き方','人事業務効率化'] },
+  { id:'kintai_kosu',     name:'工数\n管理',               short:'工数管理（カオナビ勤怠）',
+    cat:'kintai',  angle:255, ring:3, color:'#8B6FD4',
+    desc:'業務・プロジェクトごとの時間と人件費を算出。進捗とコストを可視化し、効率的なプロジェクト管理を実現します。',
+    needs:['プロジェクト管理','コスト可視化','生産性向上'],
+    kw:['勤怠','工数','プロジェクト','コスト','人件費','可視化','勤怠管理','データ分析'] },
+  { id:'kintai_rodo',     name:'労働時間\n管理',            short:'労働時間管理（カオナビ勤怠）',
+    cat:'kintai',  angle:275, ring:3, color:'#8B6FD4',
+    desc:'日々の勤務時間・月間総労働時間をリアルタイムで確認。36協定設定や変形労働時間制・フレックスタイム制にも対応し、法令遵守を支援します。',
+    needs:['時間外管理','36協定対応','フレックス対応'],
+    kw:['勤怠','労働時間','36協定','フレックス','変形労働','残業管理','法令','勤怠管理','可視化'] },
+ 
+  // ── カオナビ労務 ──
+  { id:'roumu_nyusha',    name:'入社手続き\n電子申請',       short:'入社手続き・電子申請（カオナビ労務）',
+    cat:'roumu',   angle:310, ring:3, color:'#C0695F',
+    desc:'身上情報の収集・雇用契約書締結・マイナンバー管理・e-Gov電子申請までペーパーレスで一気通貫。入社人数10名で労務担当者の工数を約97%削減します。',
+    needs:['入社手続きDX','電子申請','ペーパーレス化'],
+    kw:['入退社','入退社管理','入社手続き','電子申請','雇用契約','ペーパーレス','マイナンバー','労務','人事業務効率化','e-Gov'] },
+  { id:'roumu_nenmatsu',  name:'年末\n調整',                short:'年末調整（カオナビ労務）',
+    cat:'roumu',   angle:330, ring:3, color:'#C0695F',
+    desc:'アンケート形式で扶養控除・基礎控除・保険料控除の3申告書を電子化。PC・スマホ・タブレットから手続き可能。税制改正への対応はシステムが自動更新します。',
+    needs:['年末調整DX','書類電子化','税務手続き効率化'],
+    kw:['年末調整','税務','控除','確定申告','労務','ペーパーレス','電子化','人事業務効率化','給与'] },
+  { id:'roumu_kyuyo',     name:'給与\n明細',                short:'給与明細（カオナビ労務）',
+    cat:'roumu',   angle:350, ring:3, color:'#C0695F',
+    desc:'給与・賞与明細・源泉徴収票をWeb上で作成・配布。郵送コストゼロ・紛失リスクなし。退職者データも保持し問い合わせ対応を大幅削減できます。',
+    needs:['給与明細Web化','コスト削減','情報セキュリティ'],
+    kw:['給与','給与明細','賞与','源泉徴収票','Web明細','ペーパーレス','労務','コスト削減','人事業務効率化'] },
+  { id:'roumu_mynumber',  name:'マイナンバー\n管理',         short:'マイナンバー管理（カオナビ労務）',
+    cat:'roumu',   angle:10,  ring:3, color:'#C0695F',
+    desc:'マイナンバーを安全に収集・保管し、電子申請書類に自動反映。アクセスログを記録し監査対応も万全。公文書は自動保存されます。',
+    needs:['マイナンバー対応','情報セキュリティ','法令遵守'],
+    kw:['マイナンバー','個人情報','セキュリティ','労務','電子申請','入退社管理','入退社','法令'] },
+ 
+  // ── カオナビ採用 ──
+  { id:'saiyo_candidate',  name:'候補者\n管理',              short:'候補者管理（カオナビ採用）',
+    cat:'saiyo',   angle:55,  ring:3, color:'#3A9BBF',
+    desc:'候補者の基本情報・選考状況・面接メモを一元管理。紙・Excel・PDFに散在するデータを集約し、面接直前の準備と情報共有をスムーズにします。',
+    needs:['採用情報一元化','候補者追跡','面接効率化'],
+    kw:['採用管理','人材採用','候補者管理','選考','面接','採用','データ分析','情報公開','人材情報一元化'] },
+  { id:'saiyo_kyujin',     name:'求人\n管理',                short:'求人管理（カオナビ採用）',
+    cat:'saiyo',   angle:75,  ring:3, color:'#3A9BBF',
+    desc:'複数ポジションの募集状況を一覧画面で確認。求人単位で進捗を可視化する独自UIで、採用担当と現場のシームレスな連携と意思決定を支援します。',
+    needs:['採用計画管理','ポジション管理','採用進捗可視化'],
+    kw:['採用管理','人材採用','求人','ポジション','募集','選考管理','進捗','可視化','人事業務効率化'] },
 ];
  
 // ── プルダウン項目 → 対応機能の直接マッピング ──
@@ -1333,8 +1418,8 @@ const needsMapping = {
   '労務':             ['workflow'],
   '入退社':           ['workflow','voicenote'],
   '入退社管理':       ['workflow','voicenote'],
-  'ワークフロー':     ['workflow','smartreview','formation'],
-  '人事業務効率化':   ['workflow','smartreview','voicenote','formation'],
+  'ワークフロー':     ['workflow','smartreview','formation','roumu_nyusha'],
+  '人事業務効率化':   ['workflow','smartreview','voicenote','formation','roumu_nyusha','roumu_kyuyo','roumu_nenmatsu','kintai_alert'],
  
   // 評価・目標
   '評価':             ['smartreview','shuffleface','sheetgarage'],
@@ -1371,10 +1456,34 @@ const needsMapping = {
   'AI機能':           ['insight','positionmatch'],
  
   // カオナビ外・管理者機能（対応機能なし → 全グレーアウト）
-  '給与':             [],
-  '年末調整':         [],
-  '勤怠':             [],
+  '給与':             ['roumu_kyuyo'],
+  '年末調整':         ['roumu_nenmatsu'],
+  '勤怠':             ['kintai_dakoku','kintai_alert','kintai_shift','kintai_kosu','kintai_rodo'],
   '権限設定':         [],
+ 
+  // カオナビ勤怠
+  '勤怠管理':         ['kintai_dakoku','kintai_alert','kintai_shift','kintai_rodo','kintai_kosu'],
+  '打刻':             ['kintai_dakoku'],
+  'シフト管理':       ['kintai_shift'],
+  '残業管理':         ['kintai_alert','kintai_rodo'],
+  '36協定':           ['kintai_rodo','kintai_alert'],
+  '工数管理':         ['kintai_kosu'],
+ 
+  // カオナビ労務
+  '入社手続き':       ['roumu_nyusha','roumu_mynumber','workflow','voicenote'],
+  '電子申請':         ['roumu_nyusha','roumu_mynumber'],
+  'マイナンバー':     ['roumu_mynumber'],
+  '雇用契約':         ['roumu_nyusha'],
+  '給与明細':         ['roumu_kyuyo'],
+  '労務':             ['roumu_nyusha','roumu_nenmatsu','roumu_kyuyo','roumu_mynumber','workflow'],
+  '入退社':           ['roumu_nyusha','roumu_mynumber','workflow','voicenote'],
+  '入退社管理':       ['roumu_nyusha','roumu_mynumber','workflow','voicenote'],
+ 
+  // カオナビ採用
+  '採用管理':         ['saiyo_candidate','saiyo_kyujin','connectcube','enneagram'],
+  '人材採用':         ['saiyo_candidate','saiyo_kyujin','connectcube','enneagram'],
+  '候補者管理':       ['saiyo_candidate'],
+  '選考管理':         ['saiyo_candidate','saiyo_kyujin'],
 };
  
 // ── マッチングロジック（プルダウン・キーワード完全統一） ──
@@ -1456,7 +1565,7 @@ let highlightedIds = null; // null=全表示, Set=マッチング連動ハイラ
 // 全選択状態（初期）でクリック → そのカテゴリのみ選択に切り替え
 // 単独選択状態でクリック → 全選択に戻す
 function toggleCat(cat) {
-  const allCats = ['viz','collect','analyze','other'];
+  const allCats = ['viz','collect','analyze','other','kintai','roumu','saiyo'];
   const allSelected = activeCats.size === allCats.length;
  
   if (allSelected) {
@@ -1484,10 +1593,10 @@ function toggleCat(cat) {
 // ── キャンバス ──
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-const W = 740, H = 640;
+const W = 680, H = 680;
 canvas.width = W; canvas.height = H;
 const cx = W/2, cy = H/2;
-const rings = [80, 162, 250];
+const rings = [70, 141, 218, 296];
  
 function toRad(deg) { return deg * Math.PI / 180; }
 function getPos(angle, ring) {
@@ -1500,7 +1609,7 @@ function drawBg() {
   ctx.clearRect(0, 0, W, H);
  
   // リング（ダーク固定）
-  const ringColors = ['#1a1f30','#1e2640','#203060','#1a2744'];
+  const ringColors = ['#1a1f30','#1e2640','#203060','#1a2744','#142038'];
   for (let i = rings.length - 1; i >= 0; i--) {
     const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,rings[i]);
     grad.addColorStop(0, ringColors[0]);
@@ -1524,7 +1633,7 @@ function drawBg() {
   sectors.forEach(s => {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, rings[2], toRad(s.start), toRad(s.end));
+    ctx.arc(cx, cy, rings[3], toRad(s.start), toRad(s.end));
     ctx.closePath();
     ctx.fillStyle = s.color;
     ctx.fill();
@@ -1534,21 +1643,19 @@ function drawBg() {
   ctx.strokeStyle = 'rgba(255,255,255,0.12)';
   ctx.lineWidth = 0.5;
   ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(cx, cy-rings[2]-14); ctx.lineTo(cx, cy+rings[2]+14); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx-rings[2]-14, cy); ctx.lineTo(cx+rings[2]+14, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy-rings[3]-14); ctx.lineTo(cx, cy+rings[3]+14); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx-rings[3]-5, cy); ctx.lineTo(cx+rings[3]+5, cy); ctx.stroke();
   ctx.setLineDash([]);
  
   // 軸ラベル（外縁から十分離す）
-  ctx.font = 'bold 12px sans-serif';
+  ctx.font = 'bold 11px sans-serif';
   ctx.fillStyle = 'rgba(180,195,255,0.65)';
   ctx.textAlign = 'center';
-  ctx.fillText('▲ 戦略・計画', cx, cy - rings[2] - 32);
-  ctx.fillText('▼ 運用・業務', cx, cy + rings[2] + 42);
-  // 左右ラベルはtextAlign='center'で固定X座標に描画（見切れ防止）
-  ctx.textAlign = 'center';
-  ctx.fillText('◀ 組織全体', cx - rings[2] - 52, cy + 5);
-  ctx.fillText('個人・人材 ▶', cx + rings[2] + 52, cy + 5);
-  ctx.textAlign = 'center';
+  ctx.fillText('▲ 戦略・計画', cx, cy - rings[3] - 18);
+  ctx.fillText('▼ 運用・業務', cx, cy + rings[3] + 28);
+  // 左右ラベル：center基準で軸端から内側に配置
+  ctx.fillText('◀ 組織全体', cx - rings[3] + 28, cy + 5);
+  ctx.fillText('個人・人材 ▶', cx + rings[3] - 28, cy + 5);
 }
  
 function drawFeatures() {
@@ -1698,6 +1805,20 @@ const featureUrls = {
   learning:      'https://help.kaonavi.jp/hc/ja/categories/30345901369613-%E3%83%A9%E3%83%BC%E3%83%8B%E3%83%B3%E3%82%B0%E3%83%A9%E3%82%A4%E3%83%96%E3%83%A9%E3%83%AA',
   creative:      'https://help.kaonavi.jp/hc/ja/categories/30345877200269',
   location:      'https://help.kaonavi.jp/hc/ja/categories/30345877159693-%E3%83%AD%E3%82%B1%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%81',
+  // カオナビ勤怠
+  kintai_dakoku:  'https://product.plainer.co.jp/c/kaonavikintai/781ef85b-1a93-4cd2-be7f-bd953aceb7bf/db9432ac-6ca7-4c6d-9bbc-7415c366c06b#f7aa88d5-169f-405e-a873-9154d3bb8273',
+  kintai_alert:   'https://product.plainer.co.jp/c/kaonavikintai/781ef85b-1a93-4cd2-be7f-bd953aceb7bf/db9432ac-6ca7-4c6d-9bbc-7415c366c06b#f7aa88d5-169f-405e-a873-9154d3bb8273',
+  kintai_shift:   'https://product.plainer.co.jp/c/kaonavikintai/781ef85b-1a93-4cd2-be7f-bd953aceb7bf/db9432ac-6ca7-4c6d-9bbc-7415c366c06b#f7aa88d5-169f-405e-a873-9154d3bb8273',
+  kintai_kosu:    'https://product.plainer.co.jp/c/kaonavikintai/781ef85b-1a93-4cd2-be7f-bd953aceb7bf/db9432ac-6ca7-4c6d-9bbc-7415c366c06b#f7aa88d5-169f-405e-a873-9154d3bb8273',
+  kintai_rodo:    'https://product.plainer.co.jp/c/kaonavikintai/781ef85b-1a93-4cd2-be7f-bd953aceb7bf/db9432ac-6ca7-4c6d-9bbc-7415c366c06b#f7aa88d5-169f-405e-a873-9154d3bb8273',
+  // カオナビ労務
+  roumu_nyusha:   'https://product.plainer.co.jp/c/kaonavikintai/52bf2bcc-204e-49c2-9d5c-070092f1cfdd/80029cd1-52e8-47cc-aafe-6ff2b969479a#84d24443-1f3c-4622-a9da-31ee2fe46ce0',
+  roumu_nenmatsu: 'https://product.plainer.co.jp/c/kaonavikintai/52bf2bcc-204e-49c2-9d5c-070092f1cfdd/80029cd1-52e8-47cc-aafe-6ff2b969479a#84d24443-1f3c-4622-a9da-31ee2fe46ce0',
+  roumu_kyuyo:    'https://product.plainer.co.jp/c/kaonavikintai/52bf2bcc-204e-49c2-9d5c-070092f1cfdd/80029cd1-52e8-47cc-aafe-6ff2b969479a#84d24443-1f3c-4622-a9da-31ee2fe46ce0',
+  roumu_mynumber: 'https://product.plainer.co.jp/c/kaonavikintai/52bf2bcc-204e-49c2-9d5c-070092f1cfdd/80029cd1-52e8-47cc-aafe-6ff2b969479a#84d24443-1f3c-4622-a9da-31ee2fe46ce0',
+  // カオナビ採用
+  saiyo_candidate:'https://www.kaonavi.jp/func/ats/',
+  saiyo_kyujin:   'https://www.kaonavi.jp/func/ats/',
 };
 const HELP_BASE = 'https://help.kaonavi.jp/hc/ja/#func_list';
  
@@ -1721,7 +1842,10 @@ function updateDetail(id) {
     viz:     { bg:'rgba(29,158,117,0.15)',  text:'#4DBFA0' },
     collect: { bg:'rgba(55,138,221,0.15)',  text:'#6BAEE8' },
     analyze: { bg:'rgba(186,117,23,0.15)',  text:'#D4963A' },
-    other:   { bg:'rgba(216,90,48,0.15)',   text:'#E07A55' }
+    other:   { bg:'rgba(216,90,48,0.15)',   text:'#E07A55' },
+    kintai:  { bg:'rgba(139,111,212,0.15)', text:'#A98FE0' },
+    roumu:   { bg:'rgba(192,105,95,0.15)',  text:'#D98A82' },
+    saiyo:   { bg:'rgba(58,155,191,0.15)',  text:'#5BBAD8' }
   };
   const tc = tagColors[f.cat];
   f.needs.forEach(n => {

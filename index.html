@@ -548,6 +548,81 @@ canvas {
         <option value="人材配置">人材配置</option>
         <option value="マイボード">マイボード</option>
         <option value="セレクトビュー">セレクトビュー</option>
+        <!-- ── Excel「要望リストプルダウンへ追加」シート由来ワード ── -->
+        <option value="人材情報管理">人材情報管理</option>
+        <option value="AI書類取込">AI書類取込</option>
+        <option value="情報一覧比較">情報一覧比較</option>
+        <option value="評価デジタル化">評価デジタル化</option>
+        <option value="評価可視化">評価可視化</option>
+        <option value="目標管理">目標管理</option>
+        <option value="1on1管理">1on1管理</option>
+        <option value="スキル一元管理">スキル一元管理</option>
+        <option value="スキルマップ">スキルマップ</option>
+        <option value="AIスキル判定">AIスキル判定</option>
+        <option value="研修記録管理">研修記録管理</option>
+        <option value="研修コンテンツ">研修コンテンツ</option>
+        <option value="組織図作成">組織図作成</option>
+        <option value="配置シミュレーション">配置シミュレーション</option>
+        <option value="人材検索">人材検索</option>
+        <option value="AIマッチング">AIマッチング</option>
+        <option value="エンゲージメント分析">エンゲージメント分析</option>
+        <option value="パルスサーベイ">パルスサーベイ</option>
+        <option value="アンケート管理">アンケート管理</option>
+        <option value="離職リスク分析">離職リスク分析</option>
+        <option value="入社手続き電子化">入社手続き電子化</option>
+        <option value="労務電子申請">労務電子申請</option>
+        <option value="勤怠連携">勤怠連携</option>
+        <option value="マイナンバー管理">マイナンバー管理</option>
+        <option value="給与電子化">給与電子化</option>
+        <option value="コスト削減">コスト削減</option>
+        <option value="適性検査連携">適性検査連携</option>
+        <option value="CSV/API連携">CSV/API連携</option>
+        <option value="HRシステム連携">HRシステム連携</option>
+        <option value="BI連携">BI連携</option>
+        <option value="AI業務自動化">AI業務自動化</option>
+        <option value="AIチャットbot">AIチャットbot</option>
+        <option value="承認フロー">承認フロー</option>
+        <option value="発令自動化">発令自動化</option>
+        <option value="自動通知">自動通知</option>
+        <option value="メンテ通知">メンテ通知</option>
+        <option value="権限管理">権限管理</option>
+        <option value="SSO認証">SSO認証</option>
+        <option value="ダッシュボード">ダッシュボード</option>
+        <option value="帳票出力">帳票出力</option>
+        <option value="検索絞込">検索絞込</option>
+        <option value="変更履歴管理">変更履歴管理</option>
+        <option value="退職者管理">退職者管理</option>
+        <option value="モバイル対応">モバイル対応</option>
+        <option value="UI改善">UI改善</option>
+        <option value="サポート充実">サポート充実</option>
+        <option value="活用定着支援">活用定着支援</option>
+        <option value="健康管理">健康管理</option>
+        <option value="競合比較">競合比較</option>
+        <option value="マスタ連携">マスタ連携</option>
+        <option value="人材情報可視化">人材情報可視化</option>
+        <option value="評価制度DX">評価制度DX</option>
+        <option value="システム連携">システム連携</option>
+        <option value="承認通知自動化">承認通知自動化</option>
+        <option value="労務DX">労務DX</option>
+        <option value="エンゲージメント改善">エンゲージメント改善</option>
+        <option value="給与管理">給与管理</option>
+        <option value="組織図・異動">組織図・異動</option>
+        <option value="スキル可視化">スキル可視化</option>
+        <option value="eラーニング管理">eラーニング管理</option>
+        <option value="AI分析支援">AI分析支援</option>
+        <option value="採用プロセス管理">採用プロセス管理</option>
+        <option value="レポート可視化">レポート可視化</option>
+        <option value="帳票レポート">帳票レポート</option>
+        <option value="目標・1on1">目標・1on1</option>
+        <option value="定期サーベイ">定期サーベイ</option>
+        <option value="エンゲージメント調査">エンゲージメント調査</option>
+        <option value="オンボーディング">オンボーディング</option>
+        <option value="異動履歴管理">異動履歴管理</option>
+        <option value="検索機能">検索機能</option>
+        <option value="アンケート・適性">アンケート・適性</option>
+        <option value="勤怠DX">勤怠DX</option>
+        <option value="健康・福利厚生">健康・福利厚生</option>
+        <option value="BPO支援">BPO支援</option>
       </select>
     </div>
  
@@ -1415,9 +1490,6 @@ const needsMapping = {
   '社員一覧':         ['profilebook','sheetgarage','selectview'],
  
   // 業務効率化・申請
-  '労務':             ['workflow'],
-  '入退社':           ['workflow','voicenote'],
-  '入退社管理':       ['workflow','voicenote'],
   'ワークフロー':     ['workflow','smartreview','formation','roumu_nyusha'],
   '人事業務効率化':   ['workflow','smartreview','voicenote','formation','roumu_nyusha','roumu_kyuyo','roumu_nenmatsu','kintai_alert'],
  
@@ -1431,7 +1503,6 @@ const needsMapping = {
   '可視化':           ['shuffleface','gadget','dashboard','insight','synapstree'],
   'マイボード':       ['gadget','dashboard'],
   'カスタムCSV':      ['sheetgarage','selectview','gadget'],
-  'データ連携':       ['sheetgarage','selectview','gadget','dashboard'],
  
   // スキル・育成・ラーニング
   'スキル管理':       ['ability','sheetgarage','positionmatch'],
@@ -1444,9 +1515,7 @@ const needsMapping = {
   'エンゲージメント': ['pulse','voicenote'],
   'サーベイ':         ['pulse','voicenote','enneagram'],
  
-  // 採用・人材特性
-  '採用管理':         ['connectcube','enneagram'],
-  '人材採用':         ['connectcube','enneagram'],
+  // 採用・人材特性（→ カオナビ採用セクションに統合）
  
   // 人材配置・組織
   '人材配置':         ['positionmatch','shuffleface','pickup','connectcube','synapstree','formation'],
@@ -1484,6 +1553,108 @@ const needsMapping = {
   '人材採用':         ['saiyo_candidate','saiyo_kyujin','connectcube','enneagram'],
   '候補者管理':       ['saiyo_candidate'],
   '選考管理':         ['saiyo_candidate','saiyo_kyujin'],
+ 
+  // ── Excel「要望リストプルダウンへ追加」シート由来マッピング ──
+  // 人材情報管理
+  '人材情報管理':     ['profilebook','sheetgarage','selectview','pickup'],
+  'AI書類取込':       ['profilebook','sheetgarage'],
+  '情報一覧比較':     ['profilebook','sheetgarage','selectview'],
+  '人材検索':         ['profilebook','selectview','pickup'],
+  '人材情報可視化':   ['profilebook','sheetgarage','selectview','gadget','dashboard'],
+  '変更履歴管理':     ['sheetgarage','workflow'],
+  '退職者管理':       ['sheetgarage','workflow'],
+  '異動履歴管理':     ['sheetgarage','formation','workflow'],
+  '検索機能':         ['profilebook','selectview','pickup'],
+  '検索絞込':         ['profilebook','selectview','pickup'],
+  'モバイル対応':     ['profilebook','pulse','voicenote'],
+ 
+  // 評価・目標・1on1
+  '評価デジタル化':   ['smartreview','shuffleface'],
+  '評価可視化':       ['smartreview','shuffleface','sheetgarage','gadget','dashboard'],
+  '目標管理':         ['smartreview'],
+  '1on1管理':         ['smartreview','voicenote'],
+  '評価制度DX':       ['smartreview','shuffleface','workflow'],
+  '目標・1on1':       ['smartreview','voicenote'],
+ 
+  // スキル・育成
+  'スキル一元管理':   ['ability','sheetgarage'],
+  'スキルマップ':     ['ability','sheetgarage','positionmatch'],
+  'AIスキル判定':     ['ability','positionmatch','insight'],
+  'スキル可視化':     ['ability','sheetgarage','gadget','dashboard'],
+  '研修記録管理':     ['learning','ability'],
+  '研修コンテンツ':   ['learning'],
+  'eラーニング管理':  ['learning','ability'],
+ 
+  // 組織・配置
+  '組織図作成':       ['synapstree','formation','creative'],
+  '配置シミュレーション': ['positionmatch','synapstree','formation','shuffleface'],
+  '組織図・異動':     ['synapstree','formation','creative'],
+  'オンボーディング': ['workflow','voicenote','roumu_nyusha'],
+ 
+  // エンゲージメント・サーベイ
+  'エンゲージメント分析':  ['pulse','voicenote','insight'],
+  'パルスサーベイ':        ['pulse','voicenote'],
+  'アンケート管理':        ['pulse','voicenote'],
+  '離職リスク分析':        ['pulse','voicenote','insight'],
+  '定期サーベイ':          ['pulse','voicenote'],
+  'エンゲージメント調査':  ['pulse','voicenote'],
+  'エンゲージメント改善':  ['pulse','voicenote','smartreview'],
+  'アンケート・適性':      ['pulse','voicenote','enneagram'],
+ 
+  // 労務・勤怠
+  '入社手続き電子化': ['roumu_nyusha','roumu_mynumber','workflow'],
+  '労務電子申請':     ['roumu_nyusha','roumu_mynumber'],
+  '勤怠連携':         ['kintai_dakoku','kintai_rodo','kintai_alert'],
+  'マイナンバー管理': ['roumu_mynumber'],
+  '給与電子化':       ['roumu_kyuyo'],
+  '給与管理':         ['roumu_kyuyo','roumu_nenmatsu'],
+  '労務DX':           ['roumu_nyusha','roumu_nenmatsu','roumu_kyuyo','roumu_mynumber','workflow'],
+  '勤怠DX':           ['kintai_dakoku','kintai_alert','kintai_shift','kintai_rodo','kintai_kosu'],
+  'コスト削減':       ['roumu_kyuyo','workflow','sheetgarage'],
+ 
+  // 採用
+  '採用プロセス管理': ['saiyo_candidate','saiyo_kyujin','connectcube'],
+  '適性検査連携':     ['enneagram','connectcube','saiyo_candidate'],
+ 
+  // データ連携・システム連携
+  'CSV/API連携':      ['sheetgarage','selectview','gadget'],
+  'HRシステム連携':   ['sheetgarage','selectview','gadget'],
+  'BI連携':           ['sheetgarage','gadget','dashboard'],
+  'マスタ連携':       ['sheetgarage','selectview'],
+  'システム連携':     ['sheetgarage','selectview','gadget'],
+  'データ連携':       ['sheetgarage','selectview','gadget','dashboard'],
+ 
+  // AI・分析
+  'AIマッチング':     ['positionmatch','insight','connectcube'],
+  'AI業務自動化':     ['workflow','smartreview','insight'],
+  'AIチャットbot':    ['voicenote','insight'],
+  'AI分析支援':       ['insight','shuffleface','gadget','dashboard'],
+ 
+  // ダッシュボード・帳票・可視化
+  'ダッシュボード':   ['gadget','dashboard','shuffleface'],
+  '帳票出力':         ['sheetgarage','selectview','gadget'],
+  'レポート可視化':   ['gadget','dashboard','shuffleface','sheetgarage'],
+  '帳票レポート':     ['sheetgarage','gadget','dashboard'],
+ 
+  // ワークフロー・通知・承認
+  '承認フロー':           ['workflow','smartreview','formation'],
+  '発令自動化':           ['workflow','formation'],
+  '自動通知':             ['workflow','pulse','voicenote'],
+  'メンテ通知':           ['workflow','pulse'],
+  '承認通知自動化':       ['workflow','smartreview','formation'],
+ 
+  // 権限・セキュリティ
+  '権限管理':         [],
+  'SSO認証':          [],
+ 
+  // その他
+  'UI改善':           [],
+  'サポート充実':     [],
+  '活用定着支援':     [],
+  '健康管理':         [],
+  '競合比較':         [],
+  '健康・福利厚生':   [],
+  'BPO支援':          [],
 };
  
 // ── マッチングロジック（プルダウン・キーワード完全統一） ──
@@ -1555,7 +1726,7 @@ function computeMatches(keyword, selectVal) {
   .sort((a, b) => b.score - a.score)
   .slice(0, 5);
 }
-let activeCats = new Set(['viz','collect','analyze','other']);
+let activeCats = new Set(['viz','collect','analyze','other','kintai','roumu','saiyo']);
 let hovered = null, selected = null;
 let featurePositions = [];
 let highlightedIds = null; // null=全表示, Set=マッチング連動ハイライト
@@ -1936,8 +2107,18 @@ function triggerMatch() {
   }, 200);
 }
  
-document.getElementById('keyword-input').addEventListener('input', triggerMatch);
-document.getElementById('needs-select').addEventListener('change', triggerMatch);
+document.getElementById('keyword-input').addEventListener('input', () => {
+  // キーワード入力が始まったらプルダウンを「ご要望を選択」に戻す
+  const sel = document.getElementById('needs-select');
+  if (sel.value !== '') sel.value = '';
+  triggerMatch();
+});
+document.getElementById('needs-select').addEventListener('change', () => {
+  // プルダウン選択時はキーワード入力欄をクリア
+  const kw = document.getElementById('keyword-input');
+  if (kw.value !== '') kw.value = '';
+  triggerMatch();
+});
  
 // ── 初期描画 ──
 render();
